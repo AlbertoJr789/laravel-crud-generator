@@ -34,9 +34,39 @@
     }
 </style>
 <body class="skin-blue" style="background-color: #ecf0f5">
+
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Set ProjectPath</h4>
+
+                <div class="modal-body">
+                    <h4>Set your laravel project path here so the files can be generated there...</h4>
+                    <input type="text" class="form-control" id="txtPath" placeholder="Enter path">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btnSetPath">Set Path</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="col-md-10 col-md-offset-1">
     <section class="content">
         <div id="info" style="display: none"></div>
+        <div id="infoPath">
+            <div class="alert alert-success">
+                Project path set: <span id="projectPathAlertText"></span>
+                <button type="button" class="btn btn-primary" id="btnResetPath" onclick="
+                    localStorage.removeItem('projectPath'); 
+                    $('#path').val(null); 
+                    $('#myModal').modal('show');">Reset Path</button>
+            </div>
+        </div>
         <div class="box box-primary col-lg-12">
             <div class="box-header" style="margin-top: 10px">
                 <h1 class="box-title" style="font-size: 30px">InfyOm Laravel Generator Builder</h1>
@@ -44,6 +74,7 @@
             <div class="box-body">
                 <form id="form">
                     <input type="hidden" name="_token" id="token" value="{!! csrf_token() !!}"/>
+                    <input type="hidden" name="path" id="path" value="">
 
                     <div class="form-group col-md-4">
                         <label for="txtModelName">Model Name<span class="required">*</span></label>
@@ -327,7 +358,12 @@
     var fieldIdArr = [];
     $(function () {
 
-
+        let projectPath = localStorage.getItem('projectPath');
+        if (projectPath) {
+            $('#path').val(projectPath);
+            $('#projectPathAlertText').text(projectPath);
+            $('#infoPath').show()
+        }
 
 
         
@@ -456,6 +492,7 @@
                 });
 
                 var data = {
+                    path: $('#path').val(),
                     modelName: $('#txtModelName').val(),
                     commandType: $('#drdCommandType').val(),
                     tableName: $('#txtCustomTblName').val(),
@@ -704,6 +741,14 @@
     function removeItem(e) {
         e.parentNode.parentNode.parentNode.removeChild(e.parentNode.parentNode);
     }
+
+    $('#btnSetPath').on('click', function () {
+        if ($('#txtPath').val()) {
+            localStorage.setItem('projectPath', $('#txtPath').val());
+            $('#projectPathAlertText').text($('#txtPath').val());
+            $('#myModal').modal('hide');
+        }
+    });
 
 </script>
 </html>

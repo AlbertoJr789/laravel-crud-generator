@@ -454,7 +454,6 @@ class BaseCommand extends Command
             $this->config->addDynamicVariable('$TABLE_NAME_TITLE$', Str::studly($tableName));
         }
 
-        dd('base command linha 457');
         // Manage migrate option
         if (isset($jsonData['migrate']) && $jsonData['migrate'] == false) {
             $this->config->options['skip'][] = 'migration';
