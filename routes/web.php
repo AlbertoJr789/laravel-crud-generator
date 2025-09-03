@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,4 +24,28 @@ Route::post(
     '\InfyOm\GeneratorBuilder\Controllers\GeneratorBuilderController@generateFromFile'
 )->name('io_generator_builder_generate_from_file');
 
+Route::post('set_crud_path', function(Request $request){
+    $path = base_path('.env');
 
+    $key = 'CRUD_PATH';
+    $value = $request->path;
+    
+    if (file_exists($path)) {
+        // Escape special characters
+        $value = preg_replace('/\s+/', ' ', trim($value));
+
+        // Replace if exists, else append
+        if (strpos(file_get_contents($path), "$key=") !== false) {
+            file_put_contents(
+                $path,
+                preg_replace(
+                    "/^$key=.*/m",
+                    "$key=\"$value\"",
+                    file_get_contents($path)
+                )
+            );
+        } else {
+            file_put_contents($path, PHP_EOL . "$key=\"$value\"", FILE_APPEND);
+        }
+    }
+})->name('set_crud_path');

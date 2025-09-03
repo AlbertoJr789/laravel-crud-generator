@@ -98,7 +98,7 @@
                         <div class="form-inline form-group" style="border-color: transparent">
                             <div class="checkbox chk-align">
                                 <label>
-                                    <input type="checkbox" class="flat-red" id="chkDelete"><span
+                                    <input type="checkbox" class="flat-red" id="chkDelete" checked><span
                                             class="chk-label-margin"> Soft Delete </span>
                                 </label>
                             </div>
@@ -122,13 +122,13 @@
                             </div>
                             <div class="checkbox chk-align" id="chDataTable">
                                 <label>
-                                    <input type="checkbox" class="flat-red" id="chkDataTable"> <span
+                                    <input type="checkbox" class="flat-red" id="chkDataTable" checked> <span
                                             class="chk-label-margin">Datatables</span>
                                 </label>
                             </div>
                             <div class="checkbox chk-align" id="chMigration">
                                 <label>
-                                    <input type="checkbox" class="flat-red" id="chkMigration"> <span
+                                    <input type="checkbox" class="flat-red" id="chkMigration" checked> <span
                                             class="chk-label-margin">Migration</span>
                                 </label>
                             </div>
@@ -744,9 +744,20 @@
 
     $('#btnSetPath').on('click', function () {
         if ($('#txtPath').val()) {
-            localStorage.setItem('projectPath', $('#txtPath').val());
-            $('#projectPathAlertText').text($('#txtPath').val());
-            $('#myModal').modal('hide');
+            $.ajax({
+                url: `{{ route('set_crud_path') }}`,
+                type: 'POST',
+                data: { _token: $('#token').val(), path: $('#txtPath').val() },
+                success: function (response) {
+                    localStorage.setItem('projectPath', $('#txtPath').val());
+                    $('#projectPathAlertText').text($('#txtPath').val());
+                    $('#myModal').modal('hide');
+                },
+                error: function (response) {
+                    console.log(response);
+                }
+            });
+
         }
     });
 

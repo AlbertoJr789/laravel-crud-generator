@@ -11,49 +11,49 @@ return [
 
     'path' => [
 
-        'migration'         => database_path('migrations/'),
+        'migration'         => env('CRUD_PATH') .'/database/migrations/',
 
-        'model'             => app_path('Models/'),
+        'model'             => env('CRUD_PATH') .'/app/Models/',
 
-        'datatables'        => app_path('DataTables/'),
+        'datatables'        => env('CRUD_PATH') .'/app/DataTables/',
 
-        'livewire_tables'   => app_path('Http/Livewire/'),
+        'livewire_tables'   => env('CRUD_PATH') .'/app/Http/Livewire/',
 
-        'repository'        => app_path('Repositories/'),
+        'repository'        => env('CRUD_PATH') .'/app/Repositories/',
 
-        'routes'            => base_path('routes/web.php'),
+        'routes'            => env('CRUD_PATH') .'/routes/web.php',
 
-        'api_routes'        => base_path('routes/api.php'),
+        'api_routes'        => env('CRUD_PATH') .'/routes/api.php',
 
-        'request'           => app_path('Http/Requests/'),
+        'request'           => env('CRUD_PATH') .'/app/Http/Requests/',
 
-        'api_request'       => app_path('Http/Requests/API/'),
+        'api_request'       => env('CRUD_PATH') .'/app/Http/Requests/API/',
 
-        'controller'        => app_path('Http/Controllers/'),
+        'controller'        => env('CRUD_PATH') .'/app/Http/Controllers/',
 
-        'api_controller'    => app_path('Http/Controllers/API/'),
+        'api_controller'    => env('CRUD_PATH') .'/app/Http/Controllers/API/',
 
-        'api_resource'      => app_path('Http/Resources/'),
+        'api_resource'      => env('CRUD_PATH') .'/app/Http/Resources/',
 
-        'schema_files'      => resource_path('model_schemas/'),
+        'schema_files'      => env('CRUD_PATH') .'/model_schemas/',
 
-        'seeder'            => database_path('seeders/'),
+        'seeder'            => env('CRUD_PATH') .'/database/seeders/',
 
-        'database_seeder'   => database_path('seeders/DatabaseSeeder.php'),
+        'database_seeder'   => env('CRUD_PATH') .'/database/seeders/DatabaseSeeder.php',
 
-        'factory'           => database_path('factories/'),
+        'factory'           => env('CRUD_PATH') .'/database/factories/',
 
-        'view_provider'     => app_path('Providers/ViewServiceProvider.php'),
+        'view_provider'     => env('CRUD_PATH') .'/app/Providers/ViewServiceProvider.php',
 
-        'tests'             => base_path('tests/'),
+        'tests'             => env('CRUD_PATH') .'/tests/',
 
-        'repository_test'   => base_path('tests/Repositories/'),
+        'repository_test'   => env('CRUD_PATH') .'/tests/Repositories/',
 
-        'api_test'          => base_path('tests/APIs/'),
+        'api_test'          => env('CRUD_PATH') .'/tests/APIs/',
 
-        'views'             => resource_path('views/'),
+        'views'             => env('CRUD_PATH') .'/resources/views/',
 
-        'menu_file'         => resource_path('views/layouts/menu.blade.php'),
+        'menu_file'         => env('CRUD_PATH') .'/resources/views/layouts/menu.blade.php',
     ],
 
     /*
