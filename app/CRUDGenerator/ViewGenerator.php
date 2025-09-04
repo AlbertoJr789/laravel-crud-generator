@@ -29,17 +29,17 @@ class ViewGenerator extends BaseGenerator
             mkdir($this->path, 0755, true);
         }
 
-//        $htmlInputs = Arr::pluck($this->config->fields, 'htmlInput');
+    //        $htmlInputs = Arr::pluck($this->config->fields, 'htmlInput');
 
-        //TODO: Manage files
-//        if (in_array('file', $htmlInputs)) {
-//            $this->config->addDynamicVariable('$FILES$', ", 'files' => true");
-//        }
+            //TODO: Manage files
+    //        if (in_array('file', $htmlInputs)) {
+    //            $this->config->addDynamicVariable('$FILES$', ", 'files' => true");
+    //        }
 
-$this->config->commandComment(infy_nl().'Generating Views...');
+        $this->config->commandComment(infy_nl().'Generating Views...');
 
-    if ($this->config->getOption('views')) {
-        $viewsToBeGenerated = explode(',', $this->config->getOption('views'));
+        if ($this->config->getOption('views')) {
+            $viewsToBeGenerated = explode(',', $this->config->getOption('views'));
     
             if (in_array('index', $viewsToBeGenerated)) {
                 // $this->generateTable();
@@ -71,7 +71,6 @@ $this->config->commandComment(infy_nl().'Generating Views...');
             $this->generateDatatable();
             $this->generateActionButtons();
             $this->generateFields();
-            $this->generateFilter();
         }
 
         $this->config->commandComment('Views created: ');
@@ -270,7 +269,7 @@ $this->config->commandComment(infy_nl().'Generating Views...');
     {
         $templateData = view($this->templateViewPath.'.scaffold.Datatable')->render();
 
-        g_filesystem()->createFile($this->path."Datatable{$this->config->modelNames->plural}.vue", $templateData);
+        g_filesystem()->createFile($this->path."Datatable{$this->config->modelNames->plural}.blade.php", $templateData);
         $this->config->commandInfo("Datatable{$this->config->modelNames->name}.vue created");
     }
 
@@ -309,13 +308,7 @@ $this->config->commandComment(infy_nl().'Generating Views...');
         $this->config->commandInfo('fields.blade.php created');
     }
 
-    protected function generateFilter()
-    {
-        $templateData = view($this->templateViewPath.'.scaffold.filter')->render();
-
-        g_filesystem()->createFile($this->path.'filter.blade.php', $templateData);
-        $this->config->commandInfo('filter.blade.php created');
-    }
+ 
 
     public function rollback($views = [])
     {

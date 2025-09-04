@@ -93,10 +93,6 @@ class ControllerGenerator extends BaseGenerator
         $fileName = $this->config->modelNames->plural.'Table.php';
         $filterData = view('laravel-generator::scaffold.table.filter')->render();
         
-
-        g_filesystem()->createFile(app_path("Livewire/{$this->config->modelNames->camelPlural}/Create.php"), $templateData);
-        g_filesystem()->createFile(app_path("Livewire/{$this->config->modelNames->camelPlural}/Filter.php"), $filterData);
-
         $this->config->commandComment(infy_nl().'Livewire Components created: ');
         $this->config->commandInfo($fileName);
     }

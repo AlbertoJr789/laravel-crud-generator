@@ -10,6 +10,10 @@ That is possible as long as you inform your target laravel project path the mome
 
 ## Running
 
+Install base dependencies:
+
+    composer install
+
 Copy the .env file:
 
     cp .env.example .env
@@ -17,6 +21,10 @@ Copy the .env file:
 Since its a dev package, simply run it as:
 
     php artisan serve
+
+Access the link:
+
+    http://localhost:8000
 
 ## Template Customization
 
