@@ -1,3 +1,3 @@
     <label class="form-check">
-        @{!! Form::radio('{{ $fieldName }}', "{{ $value }}", null, ['class' => 'form-check-input','wire:model' => '{{$fieldName}}']) !!} {{ $label }}
+        <input type="radio" name="{{ $fieldName }}" value="{{ $value }}" class="form-check-input" wire:model="{{$fieldName}}"> {{ $label }}
     </label>

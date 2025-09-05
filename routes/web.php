@@ -50,3 +50,7 @@ Route::post('set_crud_path', function(Request $request){
         }
     }
 })->name('set_crud_path');
+
+Route::group(['prefix' => 'testes', 'as' => 'testes.'],function(){
+    Route::resource('/', App\Http\Controllers\TesteController::class);
+});

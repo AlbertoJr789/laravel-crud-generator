@@ -16,7 +16,7 @@ class RoutesGenerator extends BaseGenerator
 
     public function generate()
     {
-        $path = base_path('routes/admin/routes.php');
+        $path = base_path('routes/web.php');
         $routeContents = g_filesystem()->getFile($path);
         $routes = view('laravel-generator::scaffold.routes')->render();
         if (Str::contains($routeContents, $routes)) {

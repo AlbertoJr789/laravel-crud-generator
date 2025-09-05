@@ -1,8 +1,9 @@
 <!-- {{ $fieldTitle }} Field -->
 <div class="grid sm:grid-cols-2 grid-cols-1">
     <div class="form-check">
-        @{!! Form::hidden('{{ $fieldName }}', 0, ['class' => 'form-check-input']) !!}
-        @{!! Form::checkbox('{{ $fieldName }}', '{{ $checkboxVal }}', null, ['class' => 'form-check-input']) !!}
-        @{!! Form::label('{{ $fieldName }}', '{{ $fieldTitle }}', ['class' => 'form-check-label','wire:model' => '{{$fieldName}}']) !!}
+        <label for="{{ $fieldName }}">{{ $fieldTitle }}:</label>
+        <input type="hidden" name="{{ $fieldName }}" value="0" class="form-check-input">
+        <input type="checkbox" name="{{ $fieldName }}" value="{{ $checkboxVal }}" class="form-check-input" >
+        <label for="{{ $fieldName }}">{{ $fieldTitle }}</label>
     </div>
 </div>

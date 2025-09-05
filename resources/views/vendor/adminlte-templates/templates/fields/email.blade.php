@@ -1,11 +1,7 @@
 <!-- {{ $fieldTitle }} Field -->
 <div class="grid sm:grid-cols-2 grid-cols-1">
     <div>
-        @if($config->options->localized)
-            @{!! Form::label('{{ $fieldName }}', __('models/{{ $config->modelNames->camelPlural }}.fields.{{ $fieldName }}').':',['class'=>"block mx-1"]) !!}
-        @else
-            @{!! Form::label('{{ $fieldName }}', '{{ $fieldTitle }}:',['class'=>"block mx-1"]) !!}
-        @endif
-            @{!! Form::email('{{ $fieldName }}', null, ['class' => 'form-control','required'=>'true'@php if(isset($options)) { echo htmlspecialchars_decode($options); } @endphp,'wire:model' => '{{$fieldName}}']) !!}
+        <label for="{{ $fieldName }}">{{ $fieldTitle }}:</label>
+        <input type="email" name="{{ $fieldName }}" class="form-control" @php if(isset($options)) { echo htmlspecialchars_decode($options); } @endphp >
     </div>
 </div>
