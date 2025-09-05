@@ -44,7 +44,7 @@
 
                 <div class="modal-body">
                     <h4>Set your laravel project path here so the files can be generated there...</h4>
-                    <input type="text" class="form-control" id="txtPath" placeholder="Enter path">
+                    <input type="text" class="form-control" id="txtPath" placeholder="Enter path. Example: C:\Users\user\folder (NO ENDING SLASH '/')">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="btnSetPath">Set Path</button>

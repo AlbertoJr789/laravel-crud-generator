@@ -8,6 +8,18 @@ The difference here is simple. You won't limit your laravel version with develop
 
 That is possible as long as you inform your target laravel project path the moment you browse this application.
 
+When setting up the path on Windows:
+
+    C:\Users\user\folder
+
+or if you're in linux:
+
+    /var/www/folder
+
+Always pass the absolute path, DO NOT ADD a slash (/) after "folder":
+
+    /var/www/folder/ (SHOULDN'T BE LIKE THIS !!!)
+
 ## Running
 
 Install base dependencies:

@@ -33,6 +33,7 @@ Route::post('set_crud_path', function(Request $request){
     if (file_exists($path)) {
         // Escape special characters
         $value = preg_replace('/\s+/', ' ', trim($value));
+        $value = str_replace('\\', '/', $value);
 
         // Replace if exists, else append
         if (strpos(file_get_contents($path), "$key=") !== false) {
