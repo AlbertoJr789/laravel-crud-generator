@@ -16,17 +16,16 @@ class RoutesGenerator extends BaseGenerator
 
     public function generate()
     {
-        $path = base_path('routes/web.php');
-        $routeContents = g_filesystem()->getFile($path);
+    
+        $routeContents = g_filesystem()->getFile($this->path);
         $routes = view('laravel-generator::scaffold.routes')->render();
         if (Str::contains($routeContents, $routes)) {
             $this->config->commandInfo(infy_nl().'Route '.$this->config->modelNames->dashedPlural.' already exists, Skipping Adjustment.');
-
             return;
         }
 
         $routeContents .= infy_nl().$routes;
-        g_filesystem()->createFile($path, $routeContents);
+        g_filesystem()->createFile($this->path, $routeContents);
         $this->config->commandComment(infy_nl().$this->config->modelNames->dashedPlural.' routes added.');
     }
 
