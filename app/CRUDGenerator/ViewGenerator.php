@@ -234,14 +234,6 @@ class ViewGenerator extends BaseGenerator
 //            }
         }
 
-        $htmlFields[] = "@if($".$this->config->modelNames->name.")
-        <div class=\"flex sm:justify-start justify-center sm:my-auto my-4\">
-            {!! Form::label('active', __('Active'),['class' => \"block mx-1\"]) !!}
-            {!! Form::checkbox('active',null,".'$active'.", ['class' => 'checkbox-toggle-switch','wire:model' => 'active',]) !!}
-        </div>
-        @endif
-    ";
-
         g_filesystem()->createFile($this->path.'fields.blade.php', implode(infy_nls(2), $htmlFields));
         $this->config->commandInfo('field.blade.php created');
     }

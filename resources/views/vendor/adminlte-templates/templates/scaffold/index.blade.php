@@ -20,9 +20,11 @@
             </style>
         @@endif
     </head>
-    <body> 
-        <main>
-            @@include('{{$config->modelNames->snakePlural}}.Datatable{{ $config->modelNames->humanPlural }}')  
+    <body class="bg-gray-200"> 
+        <main class="p-4">
+            @@include('{{$config->modelNames->snakePlural}}.create')  
+            @@include('{{$config->modelNames->snakePlural}}.Datatable{{ ucfirst($config->modelNames->camelPlural) }}')  
         </main>
     </body>
+    @@stack('scripts')
 </html>

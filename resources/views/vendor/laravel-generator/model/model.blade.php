@@ -39,16 +39,4 @@ class {{ $config->modelNames->name }} extends Model
 
     {!! $relations !!}
 
-    public function creator(){
-        return $this->hasOne(User::class,'id','creator_id');
-    }
-
-    public function editor(){
-        return $this->hasOne(User::class,'id','editor_id');
-    }
-
-    public function deleter(){
-        return $this->hasOne(User::class,'id','deleter_id');
-    }
-
 }

@@ -9,10 +9,10 @@ use {{ $config->namespaces->apiRequest }}\Update{{ $config->modelNames->name }}A
 use {{ $config->namespaces->model }}\{{ $config->modelNames->name }};
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use {{ $config->namespaces->app }}\Http\Controllers\AppBaseController;
+use {{ $config->namespaces->app }}\Http\Controllers\Controller;
 
 {!! $docController !!}
-class {{ $config->modelNames->name }}APIController extends AppBaseController
+class {{ $config->modelNames->name }}APIController extends Controller
 {
     {!! $docIndex !!}
     public function index(Request $request): JsonResponse
@@ -27,15 +27,19 @@ class {{ $config->modelNames->name }}APIController extends AppBaseController
         }
 
         ${{ $config->modelNames->camelPlural }} = $query->get();
-
-@if($config->options->localized)
-        return $this->sendResponse(
-            ${{ $config->modelNames->camelPlural }}->toArray(),
-            __('messages.retrieved', ['model' => __('models/{{ $config->modelNames->camelPlural }}.plural')])
-        );
-@else
-        return $this->sendResponse(${{ $config->modelNames->camelPlural }}->toArray(), '{{ $config->modelNames->humanPlural }} retrieved successfully');
-@endif
+        @if($config->options->localized)
+        return response()->json([
+            'success' => true,
+            'data' => ${{ $config->modelNames->camelPlural }},
+            'message' => __('messages.retrieved', ['model' => __('models/{{ $config->modelNames->camelPlural }}.plural')])
+        ]);
+        @else
+        return response()->json([
+            'success' => true,
+            'data' => ${{ $config->modelNames->camelPlural }},
+            'message' => 'Testes retrieved successfully'
+        ]);
+        @endif
     }
 
     {!! $docStore !!}
@@ -46,14 +50,19 @@ class {{ $config->modelNames->name }}APIController extends AppBaseController
         /** @var {{ $config->modelNames->name }} ${{ $config->modelNames->camel }} */
         ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::create($input);
 
-@if($config->options->localized)
-        return $this->sendResponse(
-            ${{ $config->modelNames->camel }}->toArray(),
-            __('messages.saved', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
-        );
-@else
-        return $this->sendResponse(${{ $config->modelNames->camel }}->toArray(), '{{ $config->modelNames->human }} saved successfully');
-@endif
+        @if($config->options->localized)
+            return response()->json([
+                'success' => true,
+                'data' => ${{ $config->modelNames->camel }},
+                'message' => __('messages.saved', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
+            ]);
+        @else
+            return response()->json([
+                'success' => true,
+                'data' => ${{ $config->modelNames->camel }},
+                'message' => '{{ $config->modelNames->human }} saved successfully'
+            ]);
+        @endif
     }
 
     {!! $docShow !!}
@@ -63,23 +72,32 @@ class {{ $config->modelNames->name }}APIController extends AppBaseController
         ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::find($id);
 
         if (empty(${{ $config->modelNames->camel }})) {
-@if($config->options->localized)
-            return $this->sendError(
-                __('messages.not_found', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
-            );
-@else
-            return $this->sendError('{{ $config->modelNames->human }} not found');
-@endif
+            @if($config->options->localized)
+            return response()->json([
+                'success' => false,
+                'message' => __('messages.not_found', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
+            ],404);
+            @else
+            return response()->json([
+                'success' => false,
+                'message' => '{{ $config->modelNames->human }} not found'
+            ],404);
+            @endif
         }
 
-@if($config->options->localized)
-        return $this->sendResponse(
-            ${{ $config->modelNames->camel }}->toArray(),
-            __('messages.retrieved', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
-        );
-@else
-        return $this->sendResponse(${{ $config->modelNames->camel }}->toArray(), '{{ $config->modelNames->human }} retrieved successfully');
-@endif
+        @if($config->options->localized)
+        return response()->json([
+            'success' => true,
+            'data' => ${{ $config->modelNames->camel }},
+            'message' => __('messages.retrieved', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
+        ]);
+        @else
+        return response()->json([
+            'success' => true,
+            'data' => ${{ $config->modelNames->camel }},
+            'message' => '{{ $config->modelNames->human }} retrieved successfully'
+        ]);
+        @endif
     }
 
     {!! $docUpdate !!}
@@ -89,26 +107,35 @@ class {{ $config->modelNames->name }}APIController extends AppBaseController
         ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::find($id);
 
         if (empty(${{ $config->modelNames->camel }})) {
-@if($config->options->localized)
-            return $this->sendError(
-            __('messages.not_found', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
-            );
-@else
-            return $this->sendError('{{ $config->modelNames->human }} not found');
-@endif
+            @if($config->options->localized)
+            return response()->json([
+                'success' => false,
+                'message' => __('messages.not_found', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
+            ],404);
+            @else
+            return response()->json([
+                'success' => false,
+                'message' => '{{ $config->modelNames->human }} not found'
+            ],404);
+            @endif
         }
 
         ${{ $config->modelNames->camel }}->fill($request->all());
         ${{ $config->modelNames->camel }}->save();
 
-@if($config->options->localized)
-        return $this->sendResponse(
-            ${{ $config->modelNames->camel }}->toArray(),
-            __('messages.updated', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
-        );
-@else
-        return $this->sendResponse(${{ $config->modelNames->camel }}->toArray(), '{{ $config->modelNames->name }} updated successfully');
-@endif
+        @if($config->options->localized)
+        return response()->json([
+            'success' => true,
+            'data' => ${{ $config->modelNames->camel }},
+            'message' => __('messages.updated', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
+        ]);
+        @else
+        return response()->json([
+            'success' => true,
+            'data' => ${{ $config->modelNames->camel }},
+            'message' => '{{ $config->modelNames->name }} updated successfully'
+        ]);
+        @endif
     }
 
     {!! $docDestroy !!}
@@ -118,24 +145,33 @@ class {{ $config->modelNames->name }}APIController extends AppBaseController
         ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::find($id);
 
         if (empty(${{ $config->modelNames->camel }})) {
-@if($config->options->localized)
-            return $this->sendError(
-                __('messages.not_found', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
-            );
-@else
-            return $this->sendError('{{ $config->modelNames->human }} not found');
-@endif
+            @if($config->options->localized)
+            return response()->json([
+                'success' => false,
+                'message' => __('messages.not_found', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
+            ],404);
+            @else
+            return response()->json([
+                'success' => false,
+                'message' => '{{ $config->modelNames->human }} not found'
+            ],404);
+            @endif
         }
 
         ${{ $config->modelNames->camel }}->delete();
 
-@if($config->options->localized)
-        return $this->sendResponse(
-            $id,
-            __('messages.deleted', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
-        );
-@else
-        return $this->sendSuccess('{{ $config->modelNames->human }} deleted successfully');
-@endif
+        @if($config->options->localized)
+        return response()->json([
+            'success' => true,
+            'data' => $id,
+            'message' => __('messages.deleted', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
+        ]);
+        @else
+        return response()->json([
+            'success' => true,
+            'data' => $id,
+            'message' => '{{ $config->modelNames->human }} deleted successfully'
+        ]);
+        @endif
     }
 }

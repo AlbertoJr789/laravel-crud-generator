@@ -1,7 +1,12 @@
+@php
+    $aux = '$data->id';
+    $action = htmlspecialchars_decode("{{ route('{$config->prefixes->getRoutePrefixWith('.')}{$config->modelNames->camelPlural}.destroy', $aux) }}");
+    $actionRestore = htmlspecialchars_decode("{{ route('{$config->prefixes->getRoutePrefixWith('.')}{$config->modelNames->camelPlural}.restore', $aux) }}");
+@endphp
 <div class="flex justify-end">
     @@if(!$data->deleted_at)
         <button
-            class="btn-secondary w-[25px] h-[25px] ms-auto me-1 flex justify-center" title="Edit" onclick="">
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-[40px] h-[40px] ms-auto me-1 flex justify-center cursor-pointer" title="Edit" @verbatim onclick="edit({{ $data->id }})" @endverbatim>
             <div class="svg-icon svg-icon-3">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path opacity="0.3"
@@ -13,7 +18,10 @@
                 </svg>
             </div>
         </button>
-        <button class="btn-danger w-[25px] h-[25px] ms-auto me-1 flex justify-center" title="Delete" onclick="">
+        <form action="@php echo $action @endphp" method="POST">
+            @@csrf
+            @@method('DELETE')
+            <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-[40px] h-[40px] me-1 flex justify-center cursor-pointer" title="Delete">
             <span class="svg-icon svg-icon-3">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -26,11 +34,17 @@
                         fill="currentColor"></path>
                 </svg>
             </span>
-        </button>
+            </button>
+        </form>
     @@endif
     @@if($data->deleted_at)
-        <button class="btn" title="Restore" onclick="">
-            <i class="fa fa-trash-restore"></i>
-        </button>
+        <form action="@php echo $actionRestore @endphp" method="POST">
+            @@csrf
+            <button class="bg-purple-400 text-white py-2 px-4 rounded  me-1 flex justify-center cursor-pointer" title="Restore">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="25" fill="white">
+                    <path d="M263.1 48L377 48C390.8 48 403 56.8 407.4 69.9L416 96L512 96C529.7 96 544 110.3 544 128C544 145.7 529.7 160 512 160L128 160C110.3 160 96 145.7 96 128C96 110.3 110.3 96 128 96L224 96L232.7 69.9C237.1 56.8 249.3 48 263.1 48zM128 208L512 208L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 208zM337 287C327.6 277.6 312.4 277.6 303.1 287L231.1 359C221.7 368.4 221.7 383.6 231.1 392.9C240.5 402.2 255.7 402.3 265 392.9L296 361.9L296 464C296 477.3 306.7 488 320 488C333.3 488 344 477.3 344 464L344 361.9L375 392.9C384.4 402.3 399.6 402.3 408.9 392.9C418.2 383.5 418.3 368.3 408.9 359L336.9 287z"/>
+                </svg>
+            </button>
+        </form>
     @@endif
 </div>

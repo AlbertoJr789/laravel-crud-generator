@@ -18,18 +18,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('{{ $config->tableName }}', function (Blueprint $table) {
-            {!! $fields !!}
-            $table->boolean('active')->default(true);
-            $table->foreignId('creator_id')->references('id')->on('users');
-            $table->foreignId('editor_id')->nullable()->references('id')->on('users');
-            $table->foreignId('deleter_id')->nullable()->references('id')->on('users');
-            
-            try {
-                Permission::create([ 'name' => '{{$config->modelNames->camelPlural}}.view']);
-                Permission::create([ 'name' => '{{$config->modelNames->camelPlural}}.create']);
-                Permission::create([ 'name' => '{{$config->modelNames->camelPlural}}.delete']);
-            } catch (\Throwable $th) {
-            }
+            {!! $fields !!}  
         });
     }
 
@@ -41,13 +30,5 @@ return new class extends Migration
     public function down()
     {
         Schema::drop('{{ $config->tableName }}');
-                
-        try {
-            Permission::whereName('{{$config->modelNames->camelPlural}}.view')
-                  ->orWhereName('{{$config->modelNames->camelPlural}}.create')
-                  ->orWhereName('{{$config->modelNames->camelPlural}}.delete')
-                  ->delete();
-        } catch (\Throwable $th) {
-        }
     }
 };
