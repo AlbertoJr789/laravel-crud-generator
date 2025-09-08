@@ -1,7 +1,5 @@
 <!-- 'bootstrap / Toggle Switch {{ $fieldTitle }} Field' -->
-<div class="grid sm:grid-cols-2 grid-cols-1">
-    <div class="checkbox-toggle-switch">
-        <input type="checkbox" name="{{ $fieldName }}" value="1" class="custom-control-input" >
-        <label for="{{ $fieldName }}">{{ $fieldTitle }}:</label>
-    </div>
+<div>
+    <input type="checkbox" name="{{ $fieldName }}" value="1" class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" >
+    <label for="{{ $fieldName }}">{{ $fieldTitle }}:</label>
 </div>

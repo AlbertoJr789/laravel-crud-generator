@@ -13,24 +13,24 @@
             <table class="min-w-full divide-y divide-gray-200" id="table{{ ucfirst($config->modelNames->camelPlural) }}">
                 <thead class="bg-gray-50">
                     <tr>
-                        @foreach($config->fields as $column)
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $column->name }}</th>
-                        @endforeach
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+                @foreach($config->fields as $column)
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $column->name }}</th>
+                @endforeach
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @@foreach($data as $row) 
                     @php $a = '$row->id'; $aux = "data-id=\"{{ $a }}\"" @endphp
                         <tr {!! $aux !!}>
-                            @foreach($config->fields as $column)
-                            @php $attr = in_array($column->name, ['created_at', 'updated_at']) ? htmlspecialchars_decode("{{ \$row->{$column->name}->diffForHumans() }}") : htmlspecialchars_decode("{{ \$row->{$column->name} }}"); @endphp
-                            <td class="px-6 py-4 whitespace-nowrap" name="{{ $column->name }}">@php echo $attr; @endphp</td>
-                            @endforeach
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <!-- Action Buttons. -->
-                                @@include('{{$config->modelNames->snakePlural}}.action-buttons',['data' => $row])
-                            </td>
+                    @foreach($config->fields as $column)
+                    @php $attr = in_array($column->name, ['created_at', 'updated_at']) ? htmlspecialchars_decode("{{ \$row->{$column->name}->diffForHumans() }}") : htmlspecialchars_decode("{{ \$row->{$column->name} }}"); @endphp
+                    <td class="px-6 py-4 whitespace-nowrap" name="{{ $column->name }}">@php echo $attr; @endphp</td>
+                    @endforeach
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <!-- Action Buttons. -->
+                        @@include('{{$config->modelNames->snakePlural}}.action-buttons',['data' => $row])
+                    </td>
                         </tr>
                     @@endforeach
                 </tbody>
@@ -51,9 +51,9 @@
             let row = table{{ ucfirst($config->modelNames->camelPlural) }}.querySelector(`tr[data-id='${id}']`);
 
             @foreach($config->fields as $column)
-            @if(!in_array($column->name, ['id', 'created_at', 'updated_at']))
+            @if(!in_array($column->name, ['id', 'created_at', 'updated_at']) && !in_array($column->htmlType, ['file']) && $column->inForm)
         let {{ $column->name }} = row.querySelector(`td[name='{{ $column->name }}']`).textContent;
-            document.querySelector(`input[name='{{ $column->name }}']`).value = {{ $column->name }};
+        document.querySelector(`{{str_contains($column->htmlType, 'select') ? 'select' : 'input'}}[name='{{ $column->name }}']`).value = {{ $column->name }};
 
             @endif
             @endforeach

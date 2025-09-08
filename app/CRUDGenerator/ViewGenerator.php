@@ -205,36 +205,10 @@ class ViewGenerator extends BaseGenerator
                 $field,
                 $this->templateViewPath
             );
-
-            // TODO
-//            if ($field->htmlType == 'selectTable') {
-//                $inputArr = explode(',', $field->htmlValues[1]);
-//                $columns = '';
-//                foreach ($inputArr as $item) {
-//                    $columns .= "'$item'" . ',';  //e.g 'email,id,'
-//                }
-//                $columns = substr_replace($columns, '', -1); // remove last ,
-//
-//                $htmlValues = explode(',', $field->htmlValues[0]);
-//                $selectTable = $htmlValues[0];
-//                $modalName = null;
-//                if (count($htmlValues) == 2) {
-//                    $modalName = $htmlValues[1];
-//                }
-//
-//                $tableName = $this->config->tableName;
-//                $viewPath = $this->config->prefixes->view;
-//                if (!empty($viewPath)) {
-//                    $tableName = $viewPath . '.' . $tableName;
-//                }
-//
-//                $variableName = Str::singular($selectTable) . 'Items'; // e.g $userItems
-//
-//                $fieldTemplate = $this->generateViewComposer($tableName, $variableName, $columns, $selectTable, $modalName);
-//            }
         }
 
-        g_filesystem()->createFile($this->path.'fields.blade.php', implode(infy_nls(2), $htmlFields));
+        $fields = view($this->templateViewPath.'.scaffold.fields', ['fields' => implode(infy_nls(2), $htmlFields)])->render();
+        g_filesystem()->createFile($this->path.'fields.blade.php', $fields);
         $this->config->commandInfo('field.blade.php created');
     }
 
@@ -259,6 +233,7 @@ class ViewGenerator extends BaseGenerator
 
     protected function generateDatatable()
     {
+       
         $templateData = view($this->templateViewPath.'.scaffold.Datatable')->render();
 
         g_filesystem()->createFile($this->path."Datatable{$this->config->modelNames->plural}.blade.php", $templateData);
