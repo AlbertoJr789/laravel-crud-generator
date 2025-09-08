@@ -36,7 +36,7 @@ class APIScaffoldGeneratorCommand extends BaseCommand
         $this->generateScaffoldItems();
 
         $this->performPostActionsWithMigration();
-        throw new \Exception('test');
+        
         $this->fireFileCreatedEvent('api_scaffold');
     }
 

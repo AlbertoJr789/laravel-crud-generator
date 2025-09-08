@@ -531,8 +531,7 @@
                         $container.animate({scrollTop: $scrollTo.offset().top - $container.offset().top, scrollLeft: 0},300);
                         setTimeout(function () {
                             $('#info').fadeOut('fast');
-                        }, 3000);
-                        location.reload();
+                        }, 5000);
                     },
                     error: function (result) {
                         var result = JSON.parse(JSON.stringify(result));
