@@ -1,9 +1,9 @@
 
 @php
-$action = htmlspecialchars_decode("{{ route('admin.{$config->modelNames->camelPlural}.store') }}");
+$action = htmlspecialchars_decode("{{ route('{$config->modelNames->camelPlural}.store') }}");
 @endphp
-<div>
-    <h2 class="text-2xl font-bold mb-6 text-gray-800" id="create{{$config->modelNames->camelPlural}}">{{ $config->modelNames->humanPlural}}</h2>
+<div class="mx-auto bg-white rounded-lg shadow-lg p-8">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800" id="create{{ucfirst($config->modelNames->camelPlural)}}">{{ $config->modelNames->humanPlural}}</h2>
     <form action="@php echo $action @endphp" method="post" id="form{{ucfirst($config->modelNames->camelPlural)}}">
         @@csrf
         @@method('POST')

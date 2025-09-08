@@ -51,17 +51,17 @@ class {{ $config->modelNames->name }}APIController extends Controller
         ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::create($input);
 
         @if($config->options->localized)
-            return response()->json([
-                'success' => true,
-                'data' => ${{ $config->modelNames->camel }},
-                'message' => __('messages.saved', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
-            ]);
+        return response()->json([
+            'success' => true,
+            'data' => ${{ $config->modelNames->camel }},
+            'message' => __('messages.saved', ['model' => __('models/{{ $config->modelNames->camelPlural }}.singular')])
+        ]);
         @else
-            return response()->json([
-                'success' => true,
-                'data' => ${{ $config->modelNames->camel }},
-                'message' => '{{ $config->modelNames->human }} saved successfully'
-            ]);
+        return response()->json([
+            'success' => true,
+            'data' => ${{ $config->modelNames->camel }},
+            'message' => '{{ $config->modelNames->human }} saved successfully'
+        ]);
         @endif
     }
 

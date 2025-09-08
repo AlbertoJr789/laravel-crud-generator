@@ -22,7 +22,7 @@ class {{ $config->modelNames->name }}Controller extends Controller
      * Show the form for creating a new {{ $config->modelNames->name }}.
      */
     public function create()
-    {
+    {   
         return view('{{ $config->prefixes->getViewPrefixForInclude() }}{{ $config->modelNames->snakePlural }}.create');
     }
 
@@ -37,7 +37,6 @@ class {{ $config->modelNames->name }}Controller extends Controller
         ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::create($input);
 
         {{-- @include('laravel-generator::scaffold.controller.messages.save_success') --}}
-
         return redirect(route('{{ $config->prefixes->getRoutePrefixWith('.') }}{{ $config->modelNames->camelPlural }}.index'));
     }
 
@@ -50,7 +49,6 @@ class {{ $config->modelNames->name }}Controller extends Controller
         ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::find($id);
 
         {{-- @include('laravel-generator::scaffold.controller.messages.not_found') --}}
-
         return view('{{ $config->prefixes->getViewPrefixForInclude() }}{{ $config->modelNames->snakePlural }}.show')->with('{{ $config->modelNames->camel }}', ${{ $config->modelNames->camel }});
     }
 
@@ -63,7 +61,6 @@ class {{ $config->modelNames->name }}Controller extends Controller
         ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::find($id);
 
         {{-- @include('laravel-generator::scaffold.controller.messages.not_found') --}}
-
         return view('{{ $config->prefixes->getViewPrefixForInclude() }}{{ $config->modelNames->snakePlural }}.edit')->with('{{ $config->modelNames->camel }}', ${{ $config->modelNames->camel }});
     }
 
@@ -81,7 +78,6 @@ class {{ $config->modelNames->name }}Controller extends Controller
         ${{ $config->modelNames->camel }}->save();
 
         {{-- @include('laravel-generator::scaffold.controller.messages.update_success') --}}
-
         return redirect(route('{{ $config->prefixes->getRoutePrefixWith('.') }}{{ $config->modelNames->camelPlural }}.index'));
     }
 
@@ -96,12 +92,20 @@ class {{ $config->modelNames->name }}Controller extends Controller
         ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::find($id);
 
         {{-- @include('laravel-generator::scaffold.controller.messages.not_found') --}}
-
         ${{ $config->modelNames->camel }}->delete();
 
         {{-- @include('laravel-generator::scaffold.controller.messages.delete_success') --}}
-
         return redirect(route('{{ $config->prefixes->getRoutePrefixWith('.') }}{{ $config->modelNames->camelPlural }}.index'));
+    }
+
+    public function restore($id)
+    {
+        /** @var {{ $config->modelNames->name }} ${{ $config->modelNames->camel }} */
+        ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::withTrashed()->find($id);
+
+        ${{ $config->modelNames->camel }}->restore();
+
+        return redirect()->back();
     }
 
 }
