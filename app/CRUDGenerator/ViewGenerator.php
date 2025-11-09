@@ -66,10 +66,9 @@ class ViewGenerator extends BaseGenerator
 
             // $this->generateTable();
             // $this->generateShowFields();
-            $this->generateCreate();
             $this->generateIndex();
+            $this->generateCreate();
             $this->generateDatatable();
-            $this->generateActionButtons();
             $this->generateFields();
         }
 
@@ -161,26 +160,14 @@ class ViewGenerator extends BaseGenerator
 
     protected function generateIndex()
     {
-        switch ($this->config->tableType) {
-            case 'datatables':
-            case 'blade':
-                $tableReplaceString = "@include('".$this->config->prefixes->getViewPrefixForInclude().$this->config->modelNames->snakePlural.".table')";
-                break;
 
-            case 'livewire':
-                $tableReplaceString = view($this->templateViewPath.'.scaffold.table.livewire.body')->render();
-                break;
-
-            default:
-                throw new Exception('Invalid table type');
-        }
-
-        $templateData = view('adminlte-templates::templates.scaffold.index', ['table' => $tableReplaceString])
+        $templateData = view('adminlte-templates::templates.scaffold.index')
             ->render();
 
-        g_filesystem()->createFile($this->path.'index.blade.php', $templateData);
+        $name = ucfirst($this->config->modelNames->camelPlural);
+        g_filesystem()->createFile($this->path."../{$name}.vue", $templateData);
 
-        $this->config->commandInfo('index.blade.php created');
+        $this->config->commandInfo("{$name}.vue created");
     }
 
     protected function generateFields()
@@ -208,8 +195,13 @@ class ViewGenerator extends BaseGenerator
         }
 
         $fields = view($this->templateViewPath.'.scaffold.fields', ['fields' => implode(infy_nls(2), $htmlFields)])->render();
-        g_filesystem()->createFile($this->path.'fields.blade.php', $fields);
-        $this->config->commandInfo('field.blade.php created');
+        $summaryStep = view($this->templateViewPath.'.scaffold.summaryStep')->render();
+       
+        g_filesystem()->createFile($this->path.'/steps/DataStep.vue', $fields);
+        g_filesystem()->createFile($this->path.'/steps/SummaryStep.vue', $summaryStep);
+
+        $this->config->commandInfo('DataStep.vue created');
+        $this->config->commandInfo('SummaryStep.vue created');
     }
 
     private function generateViewComposer($tableName, $variableName, $columns, $selectTable, $modelName = null): string
@@ -235,25 +227,23 @@ class ViewGenerator extends BaseGenerator
     {
        
         $templateData = view($this->templateViewPath.'.scaffold.Datatable')->render();
+        $templateDataFilter = view($this->templateViewPath.'.scaffold.filter')->render();
+        $templateDataFilterTs = view($this->templateViewPath.'.scaffold.filter-ts')->render();
 
-        g_filesystem()->createFile($this->path."Datatable{$this->config->modelNames->plural}.blade.php", $templateData);
+        g_filesystem()->createFile($this->path."Datatable.vue", $templateData);
+        g_filesystem()->createFile($this->path."Filter.vue", $templateDataFilter);
+        g_filesystem()->createFile($this->path."filter.ts", $templateDataFilterTs);
+
         $this->config->commandInfo("Datatable{$this->config->modelNames->name}.vue created");
     }
 
-    protected function generateActionButtons()
-    {
-        $templateData = view($this->templateViewPath.'.scaffold.action-buttons')->render();
-
-        g_filesystem()->createFile($this->path.'action-buttons.blade.php', $templateData);
-        $this->config->commandInfo('action-buttons.blade.php created');
-    }
-
+ 
     protected function generateCreate()
     {
         $templateData = view($this->templateViewPath.'.scaffold.create')->render();
 
-        g_filesystem()->createFile($this->path.'create.blade.php', $templateData);
-        $this->config->commandInfo('create.blade.php created');
+        g_filesystem()->createFile($this->path."Create.vue", $templateData);
+        $this->config->commandInfo("Create.vue created");
     }
 
 

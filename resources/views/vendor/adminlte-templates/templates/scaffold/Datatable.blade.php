@@ -1,98 +1,228 @@
+<script setup lang="ts">
+    import DataTable from 'datatables.net-vue3';
+    import 'datatables.net-responsive';
+    import 'datatables.net-fixedheader-dt';
+    import 'datatables.net-buttons-dt';
+    import 'datatables.net-buttons/js/buttons.colVis.js';
+    import DataTablesCore, { Config, ConfigColumns } from 'datatables.net';
+    import { computed, ref } from 'vue';
+    import { handleCheckboxes, dataTableButtons, dataTableLengthMenu, dataTableDom } from '@/lib/utils';
+    import { useI18n } from 'vue-i18n';
+    import '../../../css/dataTables.css';
+    import '../../../css/datatablesLoader.css';
+    import { createIcons, icons } from 'lucide';
+    import { router } from '@inertiajs/vue3';
+    import Button from '@/components/ui/button/Button.vue';
+    import ActionDialog from '@/components/ui/alert-dialog/ActionDialog.vue';
+    import { getStandardFilterData } from './filter';
+    import { usePage } from '@inertiajs/vue3';
 
-@php
-    $routeIndex = htmlspecialchars_decode("{{ route('{$config->modelNames->camelPlural}.index',['deleted' => true]) }}");
-    $routeIndexUndeleted = htmlspecialchars_decode("{{ route('{$config->modelNames->camelPlural}.index',['deleted' => false]) }}");
-@endphp
-<div class="mt-10 bg-white rounded-lg shadow-lg p-8">
-    @@if(!request()->get('deleted'))
-        <a href="@php echo $routeIndex @endphp" class="bg-blue-500 text-white px-4 py-2 rounded-md">See deleted {{ $config->modelNames->humanPlural }}</a>
-    @@else
-        <a href="@php echo $routeIndexUndeleted @endphp" class="bg-blue-500 text-white px-4 py-2 rounded-md">See undeleted {{ $config->modelNames->humanPlural }}</a>
-    @@endif
-    <div class="mt-4 p3 w-full h-full overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200" id="table{{ ucfirst($config->modelNames->camelPlural) }}">
-                <thead class="bg-gray-50">
-                    <tr>
-                @foreach($config->fields as $column)
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ $column->name }}</th>
-                @endforeach
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @@foreach($data as $row) 
-                    @php $a = '$row->id'; $aux = "data-id=\"{{ $a }}\"" @endphp
-                        <tr {!! $aux !!}>
-                    @foreach($config->fields as $column)
-                    @php $attr = in_array($column->name, ['created_at', 'updated_at']) ? htmlspecialchars_decode("{{ \$row->{$column->name}->diffForHumans() }}") : htmlspecialchars_decode("{{ \$row->{$column->name} }}"); @endphp
-                    <td class="px-6 py-4 whitespace-nowrap" name="{{ $column->name }}">@php echo $attr; @endphp</td>
-                    @endforeach
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <!-- Action Buttons. -->
-                        @@include('{{$config->modelNames->snakePlural}}.action-buttons',['data' => $row])
-                    </td>
-                        </tr>
-                    @@endforeach
-                </tbody>
-            </table>
-        </div>
-</div>
+    const page = usePage();
+    const can = (page.props.can as Record<string, boolean>);
 
-@php
-    $routeUpdate = htmlspecialchars_decode("{{ route('{$config->prefixes->getRoutePrefixWith('.')}{$config->modelNames->camelPlural}.update', '0') }}");
-    $routeStore = htmlspecialchars_decode("{{ route('{$config->prefixes->getRoutePrefixWith('.')}{$config->modelNames->camelPlural}.store') }}");
-@endphp
+    const { t,locale } = useI18n();
+    DataTable.use(DataTablesCore);
 
-@@push('scripts')
-    <script>
-      
-        function edit(id){
-            let table{{ ucfirst($config->modelNames->camelPlural) }} = document.getElementById('table{{ ucfirst($config->modelNames->camelPlural) }}');
-            let row = table{{ ucfirst($config->modelNames->camelPlural) }}.querySelector(`tr[data-id='${id}']`);
+    const table = ref()
+    const checked = ref<number[]>([])
+    const toolbarRef = ref()
 
-            @foreach($config->fields as $column)
-            @if(!in_array($column->name, ['id', 'created_at', 'updated_at']) && !in_array($column->htmlType, ['file']) && $column->inForm)
-        let {{ $column->name }} = row.querySelector(`td[name='{{ $column->name }}']`).textContent;
-        document.querySelector(`{{str_contains($column->htmlType, 'select') ? 'select' : 'input'}}[name='{{ $column->name }}']`).value = {{ $column->name }};
+    const filterData = ref(getStandardFilterData());
 
-            @endif
-            @endforeach
+    const columns : ConfigColumns[] = [
+        { responsivePriority: 0, data: 'select', name: 'select', className:'text-center noVis', orderable: false, searchable: false, visible: true},
+        ...(can['{{ $config->modelNames->snake }}.delete'] ? [{ responsivePriority: 2, data: 'select', name: 'select', title: `<div class="mx-0">
+            <input class="input input-checkbox" type="checkbox" value="-1" id="table{{ $config->modelNames->human }}_headerCheckbox"/></div>`, 
+            className:'text-center noVis', orderable: false, searchable: false, visible: true, width: '20px'}] : []),
+
+        {data: 'id', title: t('id')},
+        @foreach($config->fields as $field)
+            {data: '{{ $field->name }}', title: t('{{ $field->name }}')},
+        @endforeach
+        { responsivePriority: 2, data: 'action', name: 'action', title: '', className:'text-center noVis', orderable: false, searchable: false, width: '50px'},
+
+    ].filter(Boolean)
+
+
+    const language = computed(() => {
+        const lang = locale.value ?? 'en_US';
+        
+        return {
+            url: `../../../lang/${lang}/datatables.json`
+        }
+    })
+
+    const options : Config = {
+        language: language.value,
+        buttons: dataTableButtons,
+        fixedHeader: true,
+        responsive: true,
+        serverSide: true,
+        processing: true,
+        stateSave: true,
+        order: can['{{ $config->modelNames->snake }}.delete'] ? [[2,'desc']] : [[1,'desc']],
+        dom: dataTableDom,
+        columnDefs: [
+            ...(can['{{ $config->modelNames->snake }}.delete'] ? [{
+                targets: 1, // Primeira coluna quando select existe
+                orderable: false,
+                render: function ( val: any, type: any, row: any ) {
+                    return `<div class="mx-0">
+                                <input class="input input-checkbox border-black" type="checkbox" value="${row.id}"/>
+                            </div>`;
+                }
+            }] : []),
+            {
+                targets: columns.findIndex(column => column.data === 'active'),
+                orderable: false,
+                render: function ( val: any, type: any, row: any ) {
+                    return row.active ? '<span class="badge badge-success uppercase">'+t('Yes')+'</span>' : '<span class="badge badge-danger uppercase">'+t('No')+'</span>';
+                }
+            },
+            {
+                targets: -1,
+                orderable: false,
+                render: function ( val: any, type: any, row: any ) {
+                    let btns = ''
+                    let delete_btn = can['{{ $config->modelNames->snake }}.delete'] ? `<button class="btn btn-danger btn-remove btn-xs px-2 py-1" data-id="${row.id}">
+                                   <i data-lucide="trash-2"></i>
+                                </button>` : '';
+                    let restore_btn = can['{{ $config->modelNames->snake }}.delete'] ? `<button class="btn btn-primary btn-restore btn-xs px-2 py-1" data-id="${row.id}">
+                                   <i data-lucide="archive-restore"></i>
+                                </button>` : '';
+                    let edit_btn = can['{{ $config->modelNames->snake }}.create'] ? `<button class="btn btn-primary btn-edit btn-xs px-2 py-1" data-id="${row.id}">
+                                   <i data-lucide="square-pen"></i>
+                                </button>` : '';
+
+                    if (row.deleted_at) {
+                        btns = restore_btn;
+                    } else {
+                        btns = edit_btn + delete_btn;
+                    }
+                    return `<div class="flex justify-end gap-2">
+                                ${btns}
+                            </div>`;
+                }
+            }
+        ],
+        initComplete: () => {
+            if(can['{{ $config->modelNames->snake }}.delete'])
+                handleCheckboxes(document.getElementById('table{{ $config->modelNames->human }}') as HTMLTableElement,checked)
+            
+            const toolbarContainer = document.querySelector('#table{{ $config->modelNames->human }}_wrapper .toolbar');
+            const toolbarContent = toolbarRef.value;
+            
+            if (toolbarContainer && toolbarContent) {
+                toolbarContainer.appendChild(toolbarContent);
+                toolbarContent.classList.remove('hidden');
+            }
+            
+            const table = document.getElementById('table{{ $config->modelNames->human }}');
+            if (table) {
+                table.addEventListener('click', (e) => {
+                    const target = e.target as HTMLElement;
+                    const button = target.closest('.btn-edit, .btn-remove, .btn-restore') as HTMLElement;
                     
-            let href = `@php echo $routeUpdate @endphp`
-            href = href.replace('/0', `/${id}`);
+                    if (button) {
+                        const id = parseInt(button.getAttribute('data-id') || '0');
+                        
+                        if (button.classList.contains('btn-edit')) {
+                            edit(id);
+                        } else if (button.classList.contains('btn-remove')) {
+                            remove(id);
+                        } else if (button.classList.contains('btn-restore')) {
+                            restore(id);
+                        }
+                    }
+                });
+            }
+        },
+        drawCallback: () => {
+            if(can['{{ $config->modelNames->snake }}.delete']){
+                (document.getElementById('table{{ $config->modelNames->human }}_headerCheckbox') as HTMLInputElement).checked = false
+                checked.value = []
+            }
+            createIcons({ icons });
+        },
+        lengthMenu: dataTableLengthMenu
+    };
 
-            let form = document.getElementById('form{{ ucfirst($config->modelNames->camelPlural) }}');
-            form.setAttribute('action', href);
-            form.setAttribute('method', 'POST');
-            form.querySelector('input[name="_method"]').value = 'PATCH';
-
-            let cancel{{ ucfirst($config->modelNames->camelPlural) }}Button = document.getElementById('cancel{{ ucfirst($config->modelNames->camelPlural) }}Button');
-            cancel{{ ucfirst($config->modelNames->camelPlural) }}Button.classList.remove('hidden');
-
-            document.getElementById('create{{ ucfirst($config->modelNames->camelPlural) }}').textContent = 'Update {{ $config->modelNames->humanPlural }}';
-
+    const ajax = {
+        url: '/{{ $config->modelNames->camelPlural }}/dataTableData',
+        type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')!.getAttribute('content'),
+        },
+        data: (d: any) => {
+            if(filterData.value){
+                for (const key in filterData.value) {
+                    d[key] = filterData.value[key as keyof typeof filterData.value];
+                }
+            }
         }
+    }
 
-        function cancelEdit(){
-            let form = document.getElementById('form{{ ucfirst($config->modelNames->camelPlural) }}');
-            form.setAttribute('action', `@php echo $routeStore @endphp`);
-            form.setAttribute('method', 'POST');
-            form.querySelector('input[name="_method"]').value = 'POST';
+    function edit(id: number){
+        let href = `/people/${id}/edit`
+        router.visit(href)
+    }
 
-            let cancel{{ ucfirst($config->modelNames->camelPlural) }}Button = document.getElementById('cancel{{ ucfirst($config->modelNames->camelPlural) }}Button');
-            cancel{{ ucfirst($config->modelNames->camelPlural) }}Button.classList.add('hidden');
+    const actionData = ref<number | number[]>([])
+    const action = ref<'delete' | 'restore'>('delete')
+    const actionHref = ref<string>('')
+    const openActionDialog = ref<boolean>(false)
 
-            document.getElementById('create{{ ucfirst($config->modelNames->camelPlural) }}').textContent = 'Create new {{ $config->modelNames->humanPlural }}';
+    function remove(id: number | number[]){
+        actionData.value = id;
+        action.value = 'delete';
+        actionHref.value = '/{{ $config->modelNames->camelPlural }}/deleteAll';
+        openActionDialog.value = true;
+    }
 
-            form.reset();
+    function restore(id: number | number[]){
+        actionData.value = id;
+        action.value = 'restore';
+        actionHref.value = '/{{ $config->modelNames->camelPlural }}/restoreAll';
+        openActionDialog.value = true;
+    }
+
+    function closeActionDialog(refresh: boolean){
+        openActionDialog.value = false;
+        if(refresh){
+            table.value.dt.ajax.reload();
         }
+    }
 
-        document.addEventListener('DOMContentLoaded', function(){
-            let form = document.getElementById('form{{ ucfirst($config->modelNames->camelPlural) }}');
-            form.setAttribute('action', `@php echo $routeStore @endphp`);
-            form.setAttribute('method', 'POST');
-            form.querySelector('input[name="_method"]').value = 'POST';
-        });
+    defineExpose({
+        table,
+        filterData
+    })
 
-    </script>
-@@endpush
+</script>
+
+<template>
+    <!-- Toolbar content que será movido para dentro do DataTable -->
+    <div ref="toolbarRef" class="hidden">
+        <slot name="toolbar"></slot>
+        <div v-if="checked.length && can['{{ $config->modelNames->snake }}.delete']" class="md:inline ml-2">
+            <Button v-if="filterData?.dateTypeFilter !== 'D'" variant="destructive" @click="remove(checked)">{{ t('Delete') }}</Button>
+            <Button v-else variant="outline" @click="restore(checked)">{{ t('Restore') }}</Button>
+            {{ checked.length }} {{ t('Elements Selected') }}
+        </div>
+    </div>
+    <DataTable :columns="columns" :ajax="ajax" :options="options" ref="table" class="display responsive border border-transparent border-separate border-spacing-0 rounded-lg" id="table{{ $config->modelNames->human }}">
+        <thead class="text-xs text text-amber-300 uppercase hover:cursor-pointer">
+            <tr class="border">
+                <th v-for="_ in columns" scope="col" class="px-6 py-3 first:rounded-tl-lg last:rounded-tr-lg bg-secondary ">
+                </th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th v-for="_ in columns" class="first:rounded-bl-lg last:rounded-br-lg py-4 bg-secondary"></th>
+            </tr>
+        </tfoot>
+    </DataTable>
+
+    <ActionDialog :data="actionData" :action="action" :href="actionHref" v-model:open="openActionDialog" @close="closeActionDialog" />
+</template>

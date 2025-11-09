@@ -6,106 +6,136 @@ namespace {{ $config->namespaces->controller }};
 
 use {{ $config->namespaces->request }}\Create{{ $config->modelNames->name }}Request;
 use {{ $config->namespaces->request }}\Update{{ $config->modelNames->name }}Request;
-use {{ $config->namespaces->app }}\Http\Controllers\Controller;
+use {{ $config->namespaces->app }}\Http\Controllers\AppBaseController;
 use {{ $config->namespaces->model }}\{{ $config->modelNames->name }};
 use Illuminate\Http\Request;
-use Flash;
+use Inertia\Inertia;
+use Yajra\DataTables\Facades\DataTables;
 
 class {{ $config->modelNames->name }}Controller extends Controller
 {
-    /**
-     * Display a listing of the {{ $config->modelNames->name }}.
-     */
-    {!! $indexMethod !!}
+    public function index()
+    {
+        return Inertia::render('{{$config->modelNames->snakePlural}}.index');
+    }
 
-    /**
-     * Show the form for creating a new {{ $config->modelNames->name }}.
-     */
     public function create()
-    {   
-        return view('{{ $config->prefixes->getViewPrefixForInclude() }}{{ $config->modelNames->snakePlural }}.create');
+    {
+        return Inertia::render('{{$config->modelNames->snakePlural}}/Create');
+    }
+
+    public function edit({{$config->modelNames->name}} ${{$config->modelNames->camel}})
+    {
+        return Inertia::render('{{$config->modelNames->snakePlural}}/Create',['{{$config->modelNames->camel}}' => ${{$config->modelNames->camel}}]);
+    }
+
+    public function store(Request $request){
+        try {
+            $d = $request->all();
+            $d['creator_id'] = Auth::id();
+
+            ${{$config->modelNames->camel}} = {{$config->modelNames->name}}::create($d);
+        } 
+        catch (\Throwable $th) {
+            Log::error('Error while submiting {{$config->modelNames->name}}: '.$th->getMessage());
+            return back()->withErrors(__('Whoops! Something went wrong.'));
+        }
+        return back();
+    }
+
+    public function update({{$config->modelNames->name}} ${{$config->modelNames->camel}},Update{{$config->modelNames->name}}Request $request){
+
+        try {
+            $d = $request->all();
+            ${{$config->modelNames->camel}}->update($d);
+         
+        }catch (\Throwable $th) {
+            Log::error('Error while submiting {{$config->modelNames->name}}: '.$th->getMessage());
+            return back()->withErrors(__('Whoops! Something went wrong.'));
+        }
+        return back();
+    }
+
+    public function deleteAll(Request $request){
+        try {
+            $ids = $request->ids;
+            {{$config->modelNames->name}}::whereIn('id',$ids)->delete();
+            return back()->with('success', __('{{$config->modelNames->name}} deleted successfully'));
+        } catch (\Throwable $th) {
+            Log::error('Error while deleting {{$config->modelNames->name}}: '.$th->getMessage());
+            return back()->withErrors(__('Whoops! Something went wrong.'));
+        }   
+    }
+
+    public function restoreAll(Request $request){
+
+        try {
+            $ids = $request->ids;
+            {{$config->modelNames->name}}::whereIn('id',$ids)->restore();
+            return back()->with('success', __('{{$config->modelNames->name}} restored successfully'));
+        } catch (\Throwable $th) {
+            Log::error('Error while restoring {{$config->modelNames->name}}: '.$th->getMessage());
+            return back()->withErrors(__('Whoops! Something went wrong.'));
+        }
     }
 
     /**
-     * Store a newly created {{ $config->modelNames->name }} in storage.
-     */
-    public function store(Create{{ $config->modelNames->name }}Request $request)
-    {
-        $input = $request->all();
+    * Process dataTable ajax response.
+    *
+    * @param \Yajra\Datatables\Datatables $datatables
+    * @return \Illuminate\Http\JsonResponse
+    */
+   public function dataTableData(Request $request){
 
-        /** @var {{ $config->modelNames->name }} ${{ $config->modelNames->camel }} */
-        ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::create($input);
+       $query = {{$config->modelNames->name}}::with('creator:id,name','editor:id,name','deleter:id,name');
+       $query = $this->filterDataTableData($query,$request->all());
+       return DataTables::eloquent($query)
+                         ->addColumn('select',function($reg){
+                               return '';
+                         })
+                         ->editColumn('created_at',function($reg){
+                               return $reg->created_at ? $reg->created_at->format('d/m/Y H:i') : '';
+                         })
+                         ->editColumn('updated_at',function($reg){
+                               return $reg->updated_at ? $reg->updated_at->format('d/m/Y H:i') : '';
+                         })
+                         ->editColumn('deleted_at',function($reg){
+                               return $reg->deleted_at ? $reg->deleted_at->format('d/m/Y H:i') : '';
+                         })
+                         ->addColumn('creator',function($reg){
+                               return $reg->creator ? $reg->creator->name : '';
+                         })
+                         ->addColumn('editor',function($reg){
+                               return $reg->editor ? $reg->editor->name : '';
+                         })
+                         ->addColumn('deleter',function($reg){
+                               return $reg->deleter ? $reg->deleter->name : '';
+                         })
+                         ->make();
 
-        {{-- @include('laravel-generator::scaffold.controller.messages.save_success') --}}
-        return redirect(route('{{ $config->prefixes->getRoutePrefixWith('.') }}{{ $config->modelNames->camelPlural }}.index'));
-    }
+   }
 
-    /**
-     * Display the specified {{ $config->modelNames->name }}.
-     */
-    public function show($id)
-    {
-        /** @var {{ $config->modelNames->name }} ${{ $config->modelNames->camel }} */
-        ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::find($id);
-
-        {{-- @include('laravel-generator::scaffold.controller.messages.not_found') --}}
-        return view('{{ $config->prefixes->getViewPrefixForInclude() }}{{ $config->modelNames->snakePlural }}.show')->with('{{ $config->modelNames->camel }}', ${{ $config->modelNames->camel }});
-    }
-
-    /**
-     * Show the form for editing the specified {{ $config->modelNames->name }}.
-     */
-    public function edit($id)
-    {
-        /** @var {{ $config->modelNames->name }} ${{ $config->modelNames->camel }} */
-        ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::find($id);
-
-        {{-- @include('laravel-generator::scaffold.controller.messages.not_found') --}}
-        return view('{{ $config->prefixes->getViewPrefixForInclude() }}{{ $config->modelNames->snakePlural }}.edit')->with('{{ $config->modelNames->camel }}', ${{ $config->modelNames->camel }});
-    }
-
-    /**
-     * Update the specified {{ $config->modelNames->name }} in storage.
-     */
-    public function update($id, Update{{ $config->modelNames->name }}Request $request)
-    {
-        /** @var {{ $config->modelNames->name }} ${{ $config->modelNames->camel }} */
-        ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::find($id);
-
-        {{-- @include('laravel-generator::scaffold.controller.messages.not_found') --}}
-
-        ${{ $config->modelNames->camel }}->fill($request->all());
-        ${{ $config->modelNames->camel }}->save();
-
-        {{-- @include('laravel-generator::scaffold.controller.messages.update_success') --}}
-        return redirect(route('{{ $config->prefixes->getRoutePrefixWith('.') }}{{ $config->modelNames->camelPlural }}.index'));
-    }
-
-    /**
-     * Remove the specified {{ $config->modelNames->name }} from storage.
-     *
-     * @throws \Exception
-     */
-    public function destroy($id)
-    {
-        /** @var {{ $config->modelNames->name }} ${{ $config->modelNames->camel }} */
-        ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::find($id);
-
-        {{-- @include('laravel-generator::scaffold.controller.messages.not_found') --}}
-        ${{ $config->modelNames->camel }}->delete();
-
-        {{-- @include('laravel-generator::scaffold.controller.messages.delete_success') --}}
-        return redirect(route('{{ $config->prefixes->getRoutePrefixWith('.') }}{{ $config->modelNames->camelPlural }}.index'));
-    }
-
-    public function restore($id)
-    {
-        /** @var {{ $config->modelNames->name }} ${{ $config->modelNames->camel }} */
-        ${{ $config->modelNames->camel }} = {{ $config->modelNames->name }}::withTrashed()->find($id);
-
-        ${{ $config->modelNames->camel }}->restore();
-
-        return redirect()->back();
-    }
+   private function filterDataTableData($query,$r){
+       if(isset($r['dateTypeFilter'])){
+           $field = null;
+           switch($r['dateTypeFilter']){
+               case 'C': $field = 'created_at'; break;
+               case 'U': $field = 'updated_at'; break;
+               case 'D': $field = 'deleted_at'; $query->onlyTrashed(); break;
+           }
+           if(isset($r['initialDate']) && $r['initialDate'])
+               $query->where($field,'>=',$r['initialDate']);
+           if(isset($r['endDate']) && $r['endDate'])
+               $query->where($field,'<=',$r['initialDate']);
+       }
+       if(isset($r['activeFilter'])){
+           if($r['activeFilter'] == 'true'){
+               $query->active();
+           }else{
+               $query->unactive();
+           }
+       }
+       return $query;
+   }
 
 }

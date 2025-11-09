@@ -51,7 +51,7 @@ return [
 
         'api_test'          => env('CRUD_PATH') .'/tests/APIs/',
 
-        'views'             => env('CRUD_PATH') .'/resources/views/',
+        'views'             => env('CRUD_PATH') .'/resources/js/pages/',
 
         'menu_file'         => env('CRUD_PATH') .'/resources/views/layouts/menu.blade.php',
     ],
