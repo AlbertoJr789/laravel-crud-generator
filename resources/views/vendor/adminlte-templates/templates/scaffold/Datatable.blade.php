@@ -32,13 +32,16 @@
     const columns : ConfigColumns[] = [
         { responsivePriority: 0, data: 'select', name: 'select', className:'text-center noVis', orderable: false, searchable: false, visible: true},
         ...(can['{{ $config->modelNames->snakePlural }}.delete'] ? [{ responsivePriority: 2, data: 'select', name: 'select', title: `<div class="mx-0">
-            <input class="input input-checkbox" type="checkbox" value="-1" id="table{{ $config->modelNames->human }}_headerCheckbox"/></div>`, 
+            <input class="input input-checkbox" type="checkbox" value="-1" id="table{{ $config->modelNames->camel }}_headerCheckbox"/></div>`, 
             className:'text-center noVis', orderable: false, searchable: false, visible: true, width: '20px'}] : []),
-
-        {data: 'id', title: t('id')},
         @foreach($config->fields as $field)
-            {data: '{{ $field->name }}', title: t('{{ $field->name }}')},
+        {data: '{{ $field->name }}', title: t('{{ $field->name }}')},
         @endforeach
+        {data: 'active', title: t('active')},
+        {data: 'creator', name:'creator.name', title: t('creator')},
+        {data: 'editor', name:'editor.name', title: t('editor')},
+        {data: 'deleter', name:'deleter.name', title: t('deleter')},
+        {data: 'deleted_at', title: t('deleted at')},
         { responsivePriority: 2, data: 'action', name: 'action', title: '', className:'text-center noVis', orderable: false, searchable: false, width: '50px'},
 
     ].filter(Boolean)
@@ -107,9 +110,9 @@
         ],
         initComplete: () => {
             if(can['{{ $config->modelNames->snakePlural }}.delete'])
-                handleCheckboxes(document.getElementById('table{{ $config->modelNames->human }}') as HTMLTableElement,checked)
+                handleCheckboxes(document.getElementById('table{{ $config->modelNames->camel }}') as HTMLTableElement,checked)
             
-            const toolbarContainer = document.querySelector('#table{{ $config->modelNames->human }}_wrapper .toolbar');
+            const toolbarContainer = document.querySelector('#table{{ $config->modelNames->camel }}_wrapper .toolbar');
             const toolbarContent = toolbarRef.value;
             
             if (toolbarContainer && toolbarContent) {
@@ -117,7 +120,7 @@
                 toolbarContent.classList.remove('hidden');
             }
             
-            const table = document.getElementById('table{{ $config->modelNames->human }}');
+            const table = document.getElementById('table{{ $config->modelNames->camel }}');
             if (table) {
                 table.addEventListener('click', (e) => {
                     const target = e.target as HTMLElement;
@@ -139,7 +142,7 @@
         },
         drawCallback: () => {
             if(can['{{ $config->modelNames->snakePlural }}.delete']){
-                (document.getElementById('table{{ $config->modelNames->human }}_headerCheckbox') as HTMLInputElement).checked = false
+                (document.getElementById('table{{ $config->modelNames->camel }}_headerCheckbox') as HTMLInputElement).checked = false
                 checked.value = []
             }
             createIcons({ icons });
@@ -148,7 +151,7 @@
     };
 
     const ajax = {
-        url: '/{{ $config->modelNames->camelPlural }}/dataTableData',
+        url: '/{{ $config->modelNames->dashedPlural }}/dataTableData',
         type: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')!.getAttribute('content'),
@@ -163,7 +166,7 @@
     }
 
     function edit(id: number){
-        let href = `/people/${id}/edit`
+        let href = `/{{ $config->modelNames->dashedPlural }}/${id}/edit`
         router.visit(href)
     }
 
@@ -175,14 +178,14 @@
     function remove(id: number | number[]){
         actionData.value = id;
         action.value = 'delete';
-        actionHref.value = '/{{ $config->modelNames->camelPlural }}/deleteAll';
+        actionHref.value = '/{{ $config->modelNames->dashedPlural }}/deleteAll';
         openActionDialog.value = true;
     }
 
     function restore(id: number | number[]){
         actionData.value = id;
         action.value = 'restore';
-        actionHref.value = '/{{ $config->modelNames->camelPlural }}/restoreAll';
+        actionHref.value = '/{{ $config->modelNames->dashedPlural }}/restoreAll';
         openActionDialog.value = true;
     }
 
@@ -210,7 +213,7 @@
             {{ checked.length }} {{ t('Elements Selected') }}
         </div>
     </div> @endverbatim
-    <DataTable :columns="columns" :ajax="ajax" :options="options" ref="table" class="display responsive border border-transparent border-separate border-spacing-0 rounded-lg" id="table{{ $config->modelNames->human }}">
+    <DataTable :columns="columns" :ajax="ajax" :options="options" ref="table" class="display responsive border border-transparent border-separate border-spacing-0 rounded-lg" id="table{{ $config->modelNames->camel }}">
         <thead class="text-xs text text-amber-300 uppercase hover:cursor-pointer">
             <tr class="border">
                 <th v-for="_ in columns" scope="col" class="px-6 py-3 first:rounded-tl-lg last:rounded-tr-lg bg-secondary ">

@@ -17,16 +17,16 @@ import SummaryStep from './steps/SummaryStep.vue';
 const { t } = useI18n();
 
 const props = defineProps<{
-    {{ $config->modelNames->name }}: {{ $config->modelNames->name }} | null;
+    {{ $config->modelNames->camel }}: {{ $config->modelNames->name }} | null;
 }>();
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     {
-        title: t('{{ $config->modelNames->name }}'),
+        title: t('{{ $config->modelNames->humanPlural }}'),
         href: '/{{ $config->modelNames->dashedPlural }}',
     },
     {
-        title: t('Create {{ $config->modelNames->name }}'),
+        title: t('Create {{ $config->modelNames->human }}'),
         href: '/{{ $config->modelNames->dashedPlural }}/create',
     },
 ]);
@@ -50,8 +50,11 @@ const stepIndex = ref(1);
 
 const form = useForm<{{ $config->modelNames->name }}>({
     @foreach($config->fields as $field)
-    {{ $field->name }}: {{ $field->dbType == 'increments' ? 'null' : "''" }},
+    @if($field->name != 'id')
+    {{ $field->name }}: '',
+    @endif
     @endforeach
+    active: true,
 });
 
 const validateStep1 = (): boolean => {
@@ -80,8 +83,8 @@ const allStepsCompleted = computed(() => {
 });
 
 const submit = () => {
-    if(props.{{ $config->modelNames->name }}?.id){
-        form.patch(`/{{ $config->modelNames->dashedPlural }}/${props.{{ $config->modelNames->name }}.id}`, {
+    if(props.{{ $config->modelNames->camel }}?.id){
+        form.patch(`/{{ $config->modelNames->dashedPlural }}/${props.{{ $config->modelNames->camel }}.id}`, {
             preserveScroll: true,
             headers: {
                 accept: 'application/json'
@@ -130,10 +133,13 @@ const submit = () => {
 };
 
 onMounted(() => {
-    if(props.{{ $config->modelNames->name }}){
-        @foreach($config->fields as $field)
-            form.{{ $field->name }} = props.{{ $config->modelNames->name }}.{{ $field->name }};
+    if(props.{{ $config->modelNames->camel }}){
+        @foreach($config->fields as $field) 
+        @if(!in_array($field->name, ['id', 'created_at', 'updated_at', 'deleted_at', 'creator_id', 'editor_id', 'deleter_id'])) 
+            form.{{ $field->name }} = props.{{ $config->modelNames->camel }}.{{ $field->name }};
+        @endif
         @endforeach
+        form.active = props.{{ $config->modelNames->camel }}.active;
     }
 });
 

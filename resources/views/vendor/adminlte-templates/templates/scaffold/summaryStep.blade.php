@@ -18,10 +18,11 @@
            
            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
             @foreach($config->fields as $field) 
-            @php 
-                $fieldName = "<p class=\"text-sm text-muted-foreground\">{{ t('{$field->name}') }}</p>";
-                $fieldValue = "<p class=\"font-medium\">{{ form.{$field->name} }}</p>";
-            @endphp
+                @php 
+                    if(in_array($field->name, ['id', 'active', 'created_at', 'updated_at', 'deleted_at', 'creator_id', 'editor_id', 'deleter_id'])) continue;
+                    $fieldName = "<p class=\"text-sm text-muted-foreground\">{{ t('{$field->name}') }}</p>";
+                    $fieldValue = "<p class=\"font-medium\">{{ form.{$field->name} }}</p>";
+                @endphp
                <div>
                    {!! $fieldName !!}
                    {!! $fieldValue !!}

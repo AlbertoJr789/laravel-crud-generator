@@ -6,17 +6,17 @@ namespace {{ $config->namespaces->controller }};
 
 use {{ $config->namespaces->request }}\Create{{ $config->modelNames->name }}Request;
 use {{ $config->namespaces->request }}\Update{{ $config->modelNames->name }}Request;
-use {{ $config->namespaces->app }}\Http\Controllers\AppBaseController;
 use {{ $config->namespaces->model }}\{{ $config->modelNames->name }};
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Auth;
 
 class {{ $config->modelNames->name }}Controller extends Controller
 {
     public function index()
     {
-        return Inertia::render('{{$config->modelNames->snakePlural}}.index');
+        return Inertia::render('{{ucfirst($config->modelNames->camelPlural)}}');
     }
 
     public function create()
@@ -29,12 +29,12 @@ class {{ $config->modelNames->name }}Controller extends Controller
         return Inertia::render('{{$config->modelNames->snakePlural}}/Create',['{{$config->modelNames->camel}}' => ${{$config->modelNames->camel}}]);
     }
 
-    public function store(Request $request){
+    public function store(Create{{$config->modelNames->name}}Request $request){
         try {
             $d = $request->all();
             $d['creator_id'] = Auth::id();
 
-            ${{$config->modelNames->camel}} = {{$config->modelNames->name}}::create($d);
+           {{$config->modelNames->name}}::create($d);
         } 
         catch (\Throwable $th) {
             Log::error('Error while submiting {{$config->modelNames->name}}: '.$th->getMessage());
@@ -111,6 +111,9 @@ class {{ $config->modelNames->name }}Controller extends Controller
                          ->addColumn('deleter',function($reg){
                                return $reg->deleter ? $reg->deleter->name : '';
                          })
+                         ->addColumn('action',function($reg){
+                            return '';
+                         })
                          ->make();
 
    }
@@ -126,7 +129,7 @@ class {{ $config->modelNames->name }}Controller extends Controller
            if(isset($r['initialDate']) && $r['initialDate'])
                $query->where($field,'>=',$r['initialDate']);
            if(isset($r['endDate']) && $r['endDate'])
-               $query->where($field,'<=',$r['initialDate']);
+               $query->where($field,'<=',$r['endDate']);
        }
        if(isset($r['activeFilter'])){
            if($r['activeFilter'] == 'true'){

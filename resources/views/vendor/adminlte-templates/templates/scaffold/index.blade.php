@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { computed, ref } from 'vue';
 import Datatable from './{{ $config->modelNames->snakePlural }}/Datatable.vue';
@@ -9,10 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Plus, Search } from 'lucide-vue-next';
 import Filter from './{{ $config->modelNames->snakePlural }}/Filter.vue';
 const { t } = useI18n();
+const page = usePage();
+const can = (page.props.can as Record<string, boolean>);
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     {
-        title: t('{{ $config->modelNames->name }}'),
+        title: t('{{ $config->modelNames->humanPlural }}'),
         href: '/{{ $config->modelNames->dashedPlural }}',
     },
 ]);
@@ -31,7 +33,7 @@ const applyFilters = (data: any) => {
 </script>
     
 <template>
-    <Head :title="t('{{ $config->modelNames->name }}')" />
+    <Head :title="t('{{ $config->modelNames->humanPlural }}')" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         
@@ -40,7 +42,7 @@ const applyFilters = (data: any) => {
         <div class="p-4 sm:p-6 md:p-8 w-full">
             <Datatable ref="datatableRef">
                 <template v-slot:toolbar>
-                    <Link href="/{{ $config->modelNames->dashedPlural }}/create">
+                    <Link href="/{{ $config->modelNames->dashedPlural }}/create" v-if="can['{{ $config->modelNames->snakePlural }}.create']">
                         <Button class="mr-2 mb-2">
                             <Plus />@verbatim {{ t('New') }} @endverbatim
                         </Button>

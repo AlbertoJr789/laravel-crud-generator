@@ -3,7 +3,7 @@ import { {{ $config->modelNames->name }} } from '@/types';
 import { useI18n } from 'vue-i18n';
 
 import { Input } from '@/components/ui/input';
-import { Label } from '../ui/label';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Datepicker from '@/components/ui/Datepicker.vue';
 import Switch from '@/components/ui/switch/Switch.vue';

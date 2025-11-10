@@ -21,7 +21,7 @@ return [
 
         'repository'        => env('CRUD_PATH') .'/app/Repositories/',
 
-        'routes'            => env('CRUD_PATH') .'/routes/web.php',
+        'routes'            => env('CRUD_PATH') .'/routes/admin/routes.php',
 
         'api_routes'        => env('CRUD_PATH') .'/routes/api.php',
 
