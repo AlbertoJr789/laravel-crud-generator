@@ -14,18 +14,22 @@
    
    <template>
        <div class="space-y-4">
-           <h3 class="text-lg font-semibold">{{ t('Registration Summary') }}</h3>
+           @verbatim <h3 class="text-lg font-semibold">{{ t('Registration Summary') }}</h3> @endverbatim
            
            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
-            @foreach($config->fields as $field)
+            @foreach($config->fields as $field) 
+            @php 
+                $fieldName = "<p class=\"text-sm text-muted-foreground\">{{ t('{$field->name}') }}</p>";
+                $fieldValue = "<p class=\"font-medium\">{{ form.{$field->name} }}</p>";
+            @endphp
                <div>
-                   <p class="text-sm text-muted-foreground">{{ t('{{ $field->name }}') }}</p>
-                   <p class="font-medium">{{ form.{{ $field->name }} }}</p>
+                   {!! $fieldName !!}
+                   {!! $fieldValue !!}
                </div>
             @endforeach
            </div>
        </div>
-   
+       @verbatim
        <div class="space-y-2">
            <div class="flex items-center space-x-2">
                <Checkbox id="active" v-model="form.active" />
@@ -34,4 +38,5 @@
                </Label>
            </div>
        </div>
+       @endverbatim
    </template>

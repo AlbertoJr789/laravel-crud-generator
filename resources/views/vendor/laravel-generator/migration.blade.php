@@ -25,11 +25,11 @@ return new class extends Migration
             $table->foreignId('deleter_id')->nullable()->references('id')->on('users');
             
             
-            Permission::create([ 'name' => '{{$config->modelNames->camelPlural}}.all', 'description' => 'All {{$config->modelNames->name}} permissions'])->children()->createMany([
-                ['name' => '{{$config->modelNames->camelPlural}}.view', 'description' => 'View {{$config->modelNames->name}}'],
-                ['name' => '{{$config->modelNames->camelPlural}}.create', 'description' => 'Create {{$config->modelNames->name}}'],
-                ['name' => '{{$config->modelNames->camelPlural}}.edit', 'description' => 'Edit {{$config->modelNames->name}}'],
-                ['name' => '{{$config->modelNames->camelPlural}}.delete', 'description' => 'Delete {{$config->modelNames->name}}'],
+            Permission::create([ 'name' => '{{$config->modelNames->snakePlural}}.all', 'description' => 'All {{$config->modelNames->humanPlural}} permissions'])->children()->createMany([
+                ['name' => '{{$config->modelNames->snakePlural}}.view', 'description' => 'View {{$config->modelNames->humanPlural}}'],
+                ['name' => '{{$config->modelNames->snakePlural}}.create', 'description' => 'Create {{$config->modelNames->humanPlural}}'],
+                ['name' => '{{$config->modelNames->snakePlural}}.edit', 'description' => 'Edit {{$config->modelNames->humanPlural}}'],
+                ['name' => '{{$config->modelNames->snakePlural}}.delete', 'description' => 'Delete {{$config->modelNames->humanPlural}}'],
             ]);
           
         });
@@ -45,7 +45,7 @@ return new class extends Migration
         Schema::drop('{{ $config->tableName }}');
                 
         Schema::disableForeignKeyConstraints();
-        Permission::where('name','like','{{$config->modelNames->camelPlural}}%')->delete();
+        Permission::where('name','like','{{$config->modelNames->snakePlural}}%')->delete();
         Schema::enableForeignKeyConstraints();
        
     }

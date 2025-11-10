@@ -1,6 +1,10 @@
-Route::group(['prefix' => '{{$config->modelNames->camelPlural}}', 'as' => '{{$config->modelNames->camelPlural}}.'],function(){
-    Route::resource('/', {{ $config->namespaces->controller }}\{{ $config->modelNames->name }}Controller::class);
-    Route::delete('/{id}', [{{ $config->namespaces->controller }}\{{ $config->modelNames->name }}Controller::class, 'destroy'])->name('destroy');
-    Route::patch('/update/{id}', [{{ $config->namespaces->controller }}\{{ $config->modelNames->name }}Controller::class, 'update'])->name('update');
-    Route::post('/{id}/restore', [{{ $config->namespaces->controller }}\{{ $config->modelNames->name }}Controller::class, 'restore'])->name('restore');
+Route::group(['prefix' => '{{$config->modelNames->dashedPlural}}', 'as' => '{{$config->modelNames->dashedPlural}}.'], function () {
+    Route::get('', [{{ $config->namespaces->controller }}\{{ $config->modelNames->name }}Controller::class, 'index'])->name('index')->middleware('can:{{$config->modelNames->snakePlural}}.view')->defaults('required_permissions', ['{{$config->modelNames->snakePlural}}.create','{{$config->modelNames->snakePlural}}.delete']);
+    Route::get('create', [{{ $config->namespaces->controller }}\{{ $config->modelNames->name }}Controller::class, 'create'])->name('create')->middleware('can:{{$config->modelNames->snakePlural}}.create');
+    Route::get('{{{$config->modelNames->camel}}}/edit', [{{ $config->namespaces->controller }}\{{ $config->modelNames->name }}Controller::class, 'edit'])->name('edit')->middleware('can:{{$config->modelNames->snakePlural}}.create');
+    Route::post('', [{{ $config->namespaces->controller }}\{{ $config->modelNames->name }}Controller::class, 'store'])->name('store')->middleware('can:{{$config->modelNames->snakePlural}}.create');
+    Route::patch('{{{$config->modelNames->camel}}}', [{{ $config->namespaces->controller }}\{{ $config->modelNames->name }}Controller::class, 'update'])->name('update')->middleware('can:{{$config->modelNames->snakePlural}}.create');
+    Route::post('deleteAll', [{{ $config->namespaces->controller }}\{{ $config->modelNames->name }}Controller::class, 'deleteAll'])->name('deleteAll')->middleware('can:{{$config->modelNames->snakePlural}}.delete');
+    Route::post('restoreAll', [{{ $config->namespaces->controller }}\{{ $config->modelNames->name }}Controller::class, 'restoreAll'])->name('restoreAll')->middleware('can:{{$config->modelNames->snakePlural}}.delete');
+    Route::post('dataTableData', [{{ $config->namespaces->controller }}\{{ $config->modelNames->name }}Controller::class, 'dataTableData'])->name('dataTableData')->middleware('can:{{$config->modelNames->snakePlural}}.view');
 });

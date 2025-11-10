@@ -70,6 +70,7 @@ class ViewGenerator extends BaseGenerator
             $this->generateCreate();
             $this->generateDatatable();
             $this->generateFields();
+            $this->generateMenu();
         }
 
         $this->config->commandComment('Views created: ');
@@ -194,7 +195,7 @@ class ViewGenerator extends BaseGenerator
             );
         }
 
-        $fields = view($this->templateViewPath.'.scaffold.fields', ['fields' => implode(infy_nls(2), $htmlFields)])->render();
+        $fields = view($this->templateViewPath.'.scaffold.dataStep', ['fields' => implode(infy_nls(2), $htmlFields)])->render();
         $summaryStep = view($this->templateViewPath.'.scaffold.summaryStep')->render();
        
         g_filesystem()->createFile($this->path.'/steps/DataStep.vue', $fields);
@@ -246,6 +247,25 @@ class ViewGenerator extends BaseGenerator
         $this->config->commandInfo("Create.vue created");
     }
 
+    protected function generateMenu()
+    {
+        $templateData = view($this->templateViewPath.'.scaffold.menu')->render();
+
+        $file = g_filesystem()->getFile($this->path."../../composables/useMenu.ts");
+
+        $content = str_replace('];', '', $file) . infy_nl() . $templateData . infy_nl() . '];';
+
+        g_filesystem()->createFile($this->path."../../composables/useMenu.ts", $content);
+        $this->config->commandInfo("useMenu.ts added");
+
+        $templateData = view($this->templateViewPath.'.scaffold.type')->render();
+        $file = g_filesystem()->getFile($this->path."../../types/index.d.ts");
+        $content = $file . infy_nl() . $templateData;
+
+        g_filesystem()->createFile($this->path."../../types/index.d.ts", $content);
+        $this->config->commandInfo("index.d.ts added");
+
+    }
 
     protected function generateShowFields()
     {

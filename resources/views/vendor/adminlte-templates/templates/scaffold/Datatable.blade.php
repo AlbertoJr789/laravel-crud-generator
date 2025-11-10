@@ -31,7 +31,7 @@
 
     const columns : ConfigColumns[] = [
         { responsivePriority: 0, data: 'select', name: 'select', className:'text-center noVis', orderable: false, searchable: false, visible: true},
-        ...(can['{{ $config->modelNames->snake }}.delete'] ? [{ responsivePriority: 2, data: 'select', name: 'select', title: `<div class="mx-0">
+        ...(can['{{ $config->modelNames->snakePlural }}.delete'] ? [{ responsivePriority: 2, data: 'select', name: 'select', title: `<div class="mx-0">
             <input class="input input-checkbox" type="checkbox" value="-1" id="table{{ $config->modelNames->human }}_headerCheckbox"/></div>`, 
             className:'text-center noVis', orderable: false, searchable: false, visible: true, width: '20px'}] : []),
 
@@ -60,10 +60,10 @@
         serverSide: true,
         processing: true,
         stateSave: true,
-        order: can['{{ $config->modelNames->snake }}.delete'] ? [[2,'desc']] : [[1,'desc']],
+        order: can['{{ $config->modelNames->snakePlural }}.delete'] ? [[2,'desc']] : [[1,'desc']],
         dom: dataTableDom,
         columnDefs: [
-            ...(can['{{ $config->modelNames->snake }}.delete'] ? [{
+            ...(can['{{ $config->modelNames->snakePlural }}.delete'] ? [{
                 targets: 1, // Primeira coluna quando select existe
                 orderable: false,
                 render: function ( val: any, type: any, row: any ) {
@@ -84,13 +84,13 @@
                 orderable: false,
                 render: function ( val: any, type: any, row: any ) {
                     let btns = ''
-                    let delete_btn = can['{{ $config->modelNames->snake }}.delete'] ? `<button class="btn btn-danger btn-remove btn-xs px-2 py-1" data-id="${row.id}">
+                    let delete_btn = can['{{ $config->modelNames->snakePlural }}.delete'] ? `<button class="btn btn-danger btn-remove btn-xs px-2 py-1" data-id="${row.id}">
                                    <i data-lucide="trash-2"></i>
                                 </button>` : '';
-                    let restore_btn = can['{{ $config->modelNames->snake }}.delete'] ? `<button class="btn btn-primary btn-restore btn-xs px-2 py-1" data-id="${row.id}">
+                    let restore_btn = can['{{ $config->modelNames->snakePlural }}.delete'] ? `<button class="btn btn-primary btn-restore btn-xs px-2 py-1" data-id="${row.id}">
                                    <i data-lucide="archive-restore"></i>
                                 </button>` : '';
-                    let edit_btn = can['{{ $config->modelNames->snake }}.create'] ? `<button class="btn btn-primary btn-edit btn-xs px-2 py-1" data-id="${row.id}">
+                    let edit_btn = can['{{ $config->modelNames->snakePlural }}.create'] ? `<button class="btn btn-primary btn-edit btn-xs px-2 py-1" data-id="${row.id}">
                                    <i data-lucide="square-pen"></i>
                                 </button>` : '';
 
@@ -106,7 +106,7 @@
             }
         ],
         initComplete: () => {
-            if(can['{{ $config->modelNames->snake }}.delete'])
+            if(can['{{ $config->modelNames->snakePlural }}.delete'])
                 handleCheckboxes(document.getElementById('table{{ $config->modelNames->human }}') as HTMLTableElement,checked)
             
             const toolbarContainer = document.querySelector('#table{{ $config->modelNames->human }}_wrapper .toolbar');
@@ -138,7 +138,7 @@
             }
         },
         drawCallback: () => {
-            if(can['{{ $config->modelNames->snake }}.delete']){
+            if(can['{{ $config->modelNames->snakePlural }}.delete']){
                 (document.getElementById('table{{ $config->modelNames->human }}_headerCheckbox') as HTMLInputElement).checked = false
                 checked.value = []
             }
@@ -204,12 +204,12 @@
     <!-- Toolbar content que será movido para dentro do DataTable -->
     <div ref="toolbarRef" class="hidden">
         <slot name="toolbar"></slot>
-        <div v-if="checked.length && can['{{ $config->modelNames->snake }}.delete']" class="md:inline ml-2">
+        <div v-if="checked.length && can['{{ $config->modelNames->snakePlural }}.delete']" class="md:inline ml-2"> @verbatim
             <Button v-if="filterData?.dateTypeFilter !== 'D'" variant="destructive" @click="remove(checked)">{{ t('Delete') }}</Button>
             <Button v-else variant="outline" @click="restore(checked)">{{ t('Restore') }}</Button>
             {{ checked.length }} {{ t('Elements Selected') }}
         </div>
-    </div>
+    </div> @endverbatim
     <DataTable :columns="columns" :ajax="ajax" :options="options" ref="table" class="display responsive border border-transparent border-separate border-spacing-0 rounded-lg" id="table{{ $config->modelNames->human }}">
         <thead class="text-xs text text-amber-300 uppercase hover:cursor-pointer">
             <tr class="border">

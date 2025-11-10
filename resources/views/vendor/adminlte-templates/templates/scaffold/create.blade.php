@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Person, type BreadcrumbItem } from '@/types';
+import { {{ $config->modelNames->name }}, BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { computed, onMounted, ref } from 'vue';
@@ -50,7 +50,7 @@ const stepIndex = ref(1);
 
 const form = useForm<{{ $config->modelNames->name }}>({
     @foreach($config->fields as $field)
-        {{ $field->name }}: '',
+    {{ $field->name }}: {{ $field->dbType == 'increments' ? 'null' : "''" }},
     @endforeach
 });
 
@@ -62,8 +62,8 @@ const enabledStep = (step: number) => {
     let result = false;
     switch (step) {
         case 1:
-                result = true
-                break;
+            result = true
+            break;
         case 2:
             result = validateStep1();
             break;
