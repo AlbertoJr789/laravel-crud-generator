@@ -241,7 +241,7 @@ class ViewGenerator extends BaseGenerator
     protected function generateCreate()
     {
         $templateData = view($this->templateViewPath.'.scaffold.create')->render();
-
+       
         g_filesystem()->createFile($this->path."Create.vue", $templateData);
         $this->config->commandInfo("Create.vue created");
     }
