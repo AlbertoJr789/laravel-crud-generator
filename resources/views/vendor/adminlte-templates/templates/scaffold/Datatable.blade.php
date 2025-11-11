@@ -5,7 +5,7 @@
     import 'datatables.net-buttons-dt';
     import 'datatables.net-buttons/js/buttons.colVis.js';
     import DataTablesCore, { Config, ConfigColumns } from 'datatables.net';
-    import { computed, ref } from 'vue';
+    import { computed, ref, watch } from 'vue';
     import { handleCheckboxes, dataTableButtons, dataTableLengthMenu, dataTableDom } from '@/lib/utils';
     import { useI18n } from 'vue-i18n';
     import '../../../css/dataTables.css';
@@ -199,6 +199,10 @@
     defineExpose({
         table,
         filterData
+    })
+
+    watch(language, () => {
+       window.location.reload();
     })
 
 </script>
