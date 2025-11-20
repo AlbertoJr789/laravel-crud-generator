@@ -14,8 +14,9 @@
     import { router } from '@inertiajs/vue3';
     import Button from '@/components/ui/button/Button.vue';
     import ActionDialog from '@/components/ui/alert-dialog/ActionDialog.vue';
-    import { getStandardFilterData } from './filter';
+    import { clearFilter, formatFilterValue, getFilterNames, getStandardFilterData } from './filter';
     import { usePage } from '@inertiajs/vue3';
+    import { X } from 'lucide-vue-next';
 
     const page = usePage();
     const can = (page.props.can as Record<string, boolean>);
@@ -28,6 +29,7 @@
     const toolbarRef = ref()
 
     const filterData = ref(getStandardFilterData());
+    const filterNames = getFilterNames();
 
     const columns : ConfigColumns[] = [
         { responsivePriority: 0, data: 'select', name: 'select', className:'text-center noVis', orderable: false, searchable: false, visible: true},
@@ -217,6 +219,31 @@
             {{ checked.length }} {{ t('Elements Selected') }}
         </div>
     </div> @endverbatim
+    @verbatim
+   <!-- Filters applied -->
+   <div
+   v-if="filterData && Object.keys(filterData).length"
+   class="mb-4 flex flex-wrap items-center gap-2 justify-between"
+   >
+        <div class="flex flex-wrap gap-2">
+            <template v-for="(value, key) in filterData" :key="key">
+                <span
+                    v-if="value !== undefined && value !== null && value !== ''"
+                    class="inline-flex items-center border border-gray-400 bg-transparent px-3 py-1 rounded-md text-sm font-medium "
+                >
+                    <strong class="mr-1">{{ t(filterNames[key as keyof typeof filterNames]) }}:</strong>
+                    <span class="mr-2">{{ t(formatFilterValue(key, value)) }}</span>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        class="h-5 w-2"
+                        @click="clearFilter(filterData, key); table.dt.ajax.reload();"
+                    ><X /></Button>
+                </span>
+            </template>
+        </div>
+    </div>
+    @endverbatim
     <DataTable :columns="columns" :ajax="ajax" :options="options" ref="table" class="display responsive border border-transparent border-separate border-spacing-0 rounded-lg" id="table{{ $config->modelNames->camel }}">
         <thead class="text-xs text text-amber-300 uppercase hover:cursor-pointer">
             <tr class="border">
