@@ -27,8 +27,7 @@ return new class extends Migration
             
             Permission::create([ 'name' => '{{$config->modelNames->snakePlural}}.all', 'description' => 'All {{$config->modelNames->humanPlural}} permissions'])->children()->createMany([
                 ['name' => '{{$config->modelNames->snakePlural}}.view', 'description' => 'View {{$config->modelNames->humanPlural}}'],
-                ['name' => '{{$config->modelNames->snakePlural}}.create', 'description' => 'Create {{$config->modelNames->humanPlural}}'],
-                ['name' => '{{$config->modelNames->snakePlural}}.edit', 'description' => 'Edit {{$config->modelNames->humanPlural}}'],
+                ['name' => '{{$config->modelNames->snakePlural}}.create', 'description' => 'Create/Edit {{$config->modelNames->humanPlural}}'],
                 ['name' => '{{$config->modelNames->snakePlural}}.delete', 'description' => 'Delete {{$config->modelNames->humanPlural}}'],
             ]);
           
