@@ -10,13 +10,13 @@
     import { useI18n } from 'vue-i18n';
     import '../../../css/dataTables.css';
     import '../../../css/datatablesLoader.css';
-    import { createIcons, icons } from 'lucide';
     import { router } from '@inertiajs/vue3';
     import Button from '@/components/ui/button/Button.vue';
     import ActionDialog from '@/components/ui/alert-dialog/ActionDialog.vue';
-    import { clearFilter, formatFilterValue, getFilterNames, getStandardFilterData } from './filter';
+    import { getStandardFilterData } from './filter';
     import { usePage } from '@inertiajs/vue3';
-    import { X } from 'lucide-vue-next';
+    import { ArchiveRestore, SquarePen, Trash2 } from 'lucide-vue-next';
+    import FiltersApplied from './FiltersApplied.vue';
 
     const page = usePage();
     const can = (page.props.can as Record<string, boolean>);
@@ -29,7 +29,6 @@
     const toolbarRef = ref()
 
     const filterData = ref(getStandardFilterData());
-    const filterNames = getFilterNames();
 
     const columns : ConfigColumns[] = [
         { responsivePriority: 0, data: 'select', name: 'select', className:'text-center noVis', orderable: false, searchable: false, visible: true},
@@ -84,31 +83,6 @@
                     return row.active ? '<span class="badge badge-success uppercase">'+t('Yes')+'</span>' : '<span class="badge badge-danger uppercase">'+t('No')+'</span>';
                 }
             },
-            {
-                targets: -1,
-                orderable: false,
-                render: function ( val: any, type: any, row: any ) {
-                    let btns = ''
-                    let delete_btn = can['{{ $config->modelNames->snakePlural }}.delete'] ? `<button class="btn btn-danger btn-remove btn-xs px-2 py-1" data-id="${row.id}">
-                                   <i data-lucide="trash-2"></i>
-                                </button>` : '';
-                    let restore_btn = can['{{ $config->modelNames->snakePlural }}.delete'] ? `<button class="btn btn-primary btn-restore btn-xs px-2 py-1" data-id="${row.id}">
-                                   <i data-lucide="archive-restore"></i>
-                                </button>` : '';
-                    let edit_btn = can['{{ $config->modelNames->snakePlural }}.create'] ? `<button class="btn btn-primary btn-edit btn-xs px-2 py-1" data-id="${row.id}">
-                                   <i data-lucide="square-pen"></i>
-                                </button>` : '';
-
-                    if (row.deleted_at) {
-                        btns = restore_btn;
-                    } else {
-                        btns = edit_btn + delete_btn;
-                    }
-                    return `<div class="flex justify-end gap-2">
-                                ${btns}
-                            </div>`;
-                }
-            }
         ],
         initComplete: () => {
             if(can['{{ $config->modelNames->snakePlural }}.delete'])
@@ -120,34 +94,13 @@
             if (toolbarContainer && toolbarContent) {
                 toolbarContainer.appendChild(toolbarContent);
                 toolbarContent.classList.remove('hidden');
-            }
-            
-            const table = document.getElementById('table{{ $config->modelNames->camel }}');
-            if (table) {
-                table.addEventListener('click', (e) => {
-                    const target = e.target as HTMLElement;
-                    const button = target.closest('.btn-edit, .btn-remove, .btn-restore') as HTMLElement;
-                    
-                    if (button) {
-                        const id = parseInt(button.getAttribute('data-id') || '0');
-                        
-                        if (button.classList.contains('btn-edit')) {
-                            edit(id);
-                        } else if (button.classList.contains('btn-remove')) {
-                            remove(id);
-                        } else if (button.classList.contains('btn-restore')) {
-                            restore(id);
-                        }
-                    }
-                });
-            }
+            }           
         },
         drawCallback: () => {
             if(can['{{ $config->modelNames->snakePlural }}.delete']){
                 (document.getElementById('table{{ $config->modelNames->camel }}_headerCheckbox') as HTMLInputElement).checked = false
                 checked.value = []
             }
-            createIcons({ icons });
         },
         lengthMenu: dataTableLengthMenu
     };
@@ -219,31 +172,9 @@
             {{ checked.length }} {{ t('Elements Selected') }}
         </div>
     </div> @endverbatim
-    @verbatim
-   <!-- Filters applied -->
-   <div
-   v-if="filterData && Object.keys(filterData).length"
-   class="mb-4 flex flex-wrap items-center gap-2 justify-between"
-   >
-        <div class="flex flex-wrap gap-2">
-            <template v-for="(value, key) in filterData" :key="key">
-                <span
-                    v-if="value !== undefined && value !== null && value !== ''"
-                    class="inline-flex items-center border border-gray-400 bg-transparent px-3 py-1 rounded-md text-sm font-medium "
-                >
-                    <strong class="mr-1">{{ t(filterNames[key as keyof typeof filterNames]) }}:</strong>
-                    <span class="mr-2">{{ t(formatFilterValue(key, value)) }}</span>
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        class="h-5 w-2"
-                        @click="clearFilter(filterData, key); table.dt.ajax.reload();"
-                    ><X /></Button>
-                </span>
-            </template>
-        </div>
-    </div>
-    @endverbatim
+  
+    <FiltersApplied :filter-data="filterData" @clear-filter="table.dt.ajax.reload()"/>
+
     <DataTable :columns="columns" :ajax="ajax" :options="options" ref="table" class="display responsive border border-transparent border-separate border-spacing-0 rounded-lg" id="table{{ $config->modelNames->camel }}">
         <thead class="text-xs text text-amber-300 uppercase hover:cursor-pointer">
             <tr class="border">
@@ -256,6 +187,19 @@
                 <th v-for="_ in columns" class="first:rounded-bl-lg last:rounded-br-lg py-4 bg-secondary"></th>
             </tr>
         </tfoot>
+        <template #column-action="props">
+            <div class="flex justify-end gap-2">
+                <Button v-if="can['{{ $config->modelNames->snakePlural }}.create'] && !props.rowData.deleted_at"  @@click="edit(props.rowData.id)">
+                    <SquarePen />
+                </Button>
+                <Button v-if="can['{{ $config->modelNames->snakePlural }}.delete'] && !props.rowData.deleted_at" variant="destructive"  @@click="remove(props.rowData.id)">
+                    <Trash2 />
+                </Button>
+                <Button v-if="can['{{ $config->modelNames->snakePlural }}.delete'] && props.rowData.deleted_at"  @@click="restore(props.rowData.id)">
+                    <ArchiveRestore />
+                </Button>
+            </div>
+        </template>
     </DataTable>
 
     <ActionDialog :data="actionData" :action="action" :href="actionHref" v-model:open="openActionDialog" @close="closeActionDialog" />

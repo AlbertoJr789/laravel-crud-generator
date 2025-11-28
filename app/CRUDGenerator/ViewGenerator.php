@@ -230,9 +230,11 @@ class ViewGenerator extends BaseGenerator
         $templateData = view($this->templateViewPath.'.scaffold.Datatable')->render();
         $templateDataFilter = view($this->templateViewPath.'.scaffold.filter')->render();
         $templateDataFilterTs = view($this->templateViewPath.'.scaffold.filter-ts')->render();
+        $templateDataFiltersApplied = view($this->templateViewPath.'.scaffold.filters-applied')->render();
 
         g_filesystem()->createFile($this->path."Datatable.vue", $templateData);
         g_filesystem()->createFile($this->path."Filter.vue", $templateDataFilter);
+        g_filesystem()->createFile($this->path."FiltersApplied.vue", $templateDataFiltersApplied);
         g_filesystem()->createFile($this->path."filter.ts", $templateDataFilterTs);
 
         $this->config->commandInfo("Datatable{$this->config->modelNames->name}.vue created");
